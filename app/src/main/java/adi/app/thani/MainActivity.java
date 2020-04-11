@@ -1,40 +1,36 @@
 package adi.app.thani;
 
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Environment;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.PopupMenu;
+import android.widget.PopupWindow;
+import android.widget.Toast;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.media.MediaPlayer;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.Environment;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.PopupMenu;
-import android.widget.Toast;
-
 import com.github.hiteshsondhi88.libffmpeg.FFmpeg;
-import com.github.hiteshsondhi88.libffmpeg.FFmpegLoadBinaryResponseHandler;
-import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegNotSupportedException;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import adi.app.thani.R;
 public class MainActivity extends AppCompatActivity {
     int i = 0;
     FFmpeg fFmpeg;
@@ -60,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
                 menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        String suffix = parent.getItemAtPosition(position).toString();
+                        final String suffix = parent.getItemAtPosition(position).toString();
                         final String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath() + File.separator + suffix + ".mp4";
                         switch((String)item.getTitle()) {
                             case "Play Audio":
@@ -93,9 +89,35 @@ public class MainActivity extends AppCompatActivity {
                                 }
                                 data.setAction(Intent.ACTION_SEND);
                                 data.putExtra(Intent.EXTRA_STREAM,fileuri);
-                                data.setType("audio/mp4");
+                                data.setType("video/mp4");
                                 startActivity(Intent.createChooser(data,null));
                             break;
+                            case "Rename":
+                                LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+                                View popview = inflater.inflate(R.layout.rename, null);
+                                final PopupWindow pop = new PopupWindow(popview, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                                Button button = popview.findViewById(R.id.button);
+                                final EditText name = popview.findViewById(R.id.editText3);
+                                name.setText(suffix);
+                                final int bpmattr = bpm.get(suffix);
+                                bpm.remove(suffix);
+                                final String talamattr = talam.get(suffix);
+                                talam.remove(suffix);
+                                pop.setFocusable(true);
+                                pop.showAtLocation(view, Gravity.CENTER, 50, 50);
+                                button.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        pop.dismiss();
+                                        File file1 = new File(path);
+                                        File file2 = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath() + File.separator + name.getText().toString() + ".mp4");
+                                        file1.renameTo(file2);
+                                        bpm.put(name.getText().toString(), bpmattr);
+                                        talam.put(name.getText().toString(), talamattr);
+                                        adapter.remove(suffix);
+                                        adapter.add(name.getText().toString());
+                                    }
+                                });
                         }
                         return false;
                     }
@@ -124,6 +146,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
@@ -131,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
                 i = data.getIntExtra(Intent.EXTRA_TEXT, 0);
                 int bpmItem = data.getIntExtra(Intent.ACTION_PACKAGE_REMOVED, 0);
                 String talamItem = data.getStringExtra(Intent.EXTRA_PACKAGE_NAME);
-                String name = "recorder" + (i - 1);
+                String name = data.getStringExtra(Intent.EXTRA_STREAM);
                 bpm.put(name,bpmItem);
                 talam.put(name,talamItem);
                 recordList.add(name);

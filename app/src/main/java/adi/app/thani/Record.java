@@ -10,18 +10,23 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import org.jcodec.api.android.AndroidSequenceEncoder;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,8 +34,6 @@ import java.io.IOException;
 public class Record extends Activity {
     int permissionsgranted;
     CountDownTimer hi;
-
-    AndroidSequenceEncoder encode;
     Boolean visibleChecked = true;
     ImageView image;
     ImageView image2;
@@ -41,11 +44,14 @@ public class Record extends Activity {
     int i = 0;
     MediaRecorder record;
     String path;
+    boolean buttonClick;
     Intent returnval;
+    ConstraintLayout cl;
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.recorder);
         returnval = new Intent();
+        cl = findViewById(R.id.cl);
         count = getIntent().getIntExtra(Intent.EXTRA_INDEX,0);
         image = findViewById(R.id.imageView);
         image2 = findViewById(R.id.imageView2);
@@ -54,7 +60,6 @@ public class Record extends Activity {
         speed.setText("80");
         System.out.println(permissionsgranted + " permission at entry");
         record = new MediaRecorder();
-        record.reset();
         if (ContextCompat.checkSelfPermission(this,Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
             if (ContextCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 run();
@@ -66,13 +71,9 @@ public class Record extends Activity {
         }
     }
     public void run() {
-        path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath() + File.separator + "recorder" + count + ".mp4";
+        path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath() + File.separator;
         count++;
         System.out.println(path);
-        record.setAudioSource(MediaRecorder.AudioSource.MIC);
-        record.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-        record.setOutputFile(path);
-        record.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
         toggle = findViewById(R.id.toggleButton);
         toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @SuppressLint("ResourceType")
@@ -81,6 +82,10 @@ public class Record extends Activity {
                 System.out.println();
                 final Intent intent = getIntent();
                 if (isChecked) {
+                    record.setAudioSource(MediaRecorder.AudioSource.MIC);
+                    record.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+                    record.setOutputFile(path + "Thani" + (count - 1) + ".mp4");
+                    record.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
                     try {
                         record.prepare();
                     } catch (IOException e) {
@@ -192,11 +197,61 @@ public class Record extends Activity {
                     hi.start();
                 } else {
                     record.stop();
-                    record.release();
+                    LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+                    View popview = inflater.inflate(R.layout.popup, null);
+                    final PopupWindow pop = new PopupWindow(popview, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    pop.setOutsideTouchable(false);
+                    pop.setFocusable(true);
+                    pop.showAtLocation(buttonView, Gravity.CENTER, 0, 0);
                     setResult(RESULT_OK, returnval);
                     returnval.putExtra(Intent.EXTRA_TEXT, count);
                     returnval.putExtra(Intent.EXTRA_PACKAGE_NAME,intent.getStringExtra(Intent.EXTRA_TEXT));
-                    finish();
+                    FloatingActionButton del = popview.findViewById(R.id.floatingActionButton3);
+                    FloatingActionButton save = popview.findViewById(R.id.floatingActionButton4);
+                    final EditText name = popview.findViewById(R.id.editText2);
+                    name.setText("Thani" + count);
+                    pop.update();
+                    buttonClick = false;
+                    del.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            buttonClick = true;
+                            pop.dismiss();
+                            record.release();
+                            File file1 = new File(path + "Thani" + (count - 1) + ".mp4");
+                            file1.delete();
+                            setResult(RESULT_CANCELED, returnval);
+                            finish();
+                        }
+                    });
+                    save.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            buttonClick = true;
+                            pop.dismiss();
+                            record.release();
+                            record = null;
+                            File file1 = new File(path + "Thani" + (count - 1) + ".mp4");
+                            File file = new File(path + name.getText().toString() + ".mp4");
+                            file1.renameTo(file);
+                            returnval.putExtra(Intent.EXTRA_STREAM, name.getText().toString());
+                            finish();
+                        }
+                    });
+                    pop.setOnDismissListener(new PopupWindow.OnDismissListener() {
+                        @Override
+                        public void onDismiss() {
+                            if (!buttonClick) {
+                                record.release();
+                                record = null;
+                                File file1 = new File(path + "Thani" + (count - 1) + ".mp4");
+                                File file = new File(path + name.getText().toString() + ".mp4");
+                                file1.renameTo(file);
+                                returnval.putExtra(Intent.EXTRA_STREAM, name.getText().toString());
+                                finish();
+                            }
+                        }
+                    });
                 }
             }
         });
