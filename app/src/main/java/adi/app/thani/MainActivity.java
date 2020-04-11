@@ -41,8 +41,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        bpm = new HashMap<String, Integer>();
-        talam = new HashMap<String,String>();
+        bpm = Readfromfile.read(this).bpm;
+        talam = Readfromfile.read(this).talam;
+        recordList = Readfromfile.read(this).recorder;
         setContentView(R.layout.activity_main);
         FloatingActionButton fab = findViewById(R.id.floatingActionButton);
         ListView listView = findViewById(R.id.listView);
@@ -60,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
                         final String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath() + File.separator + suffix + ".mp4";
                         switch((String)item.getTitle()) {
                             case "Play Audio":
+                                System.out.println("Play Audio");
                                 Intent play = new Intent(MainActivity.this,Play.class);
                                 play.putExtra(Intent.EXTRA_TEXT,bpm.get(suffix));
                                 play.putExtra(Intent.EXTRA_COMPONENT_NAME,suffix);
@@ -148,7 +150,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-
+        Datatofile file = new Datatofile();
+        Datatofile.fileWrite(recordList, bpm, talam, this);
     }
 
     @Override
