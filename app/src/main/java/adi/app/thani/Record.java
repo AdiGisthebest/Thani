@@ -59,6 +59,7 @@ public class Record extends Activity {
         speed = findViewById(R.id.editText);
         speed.setText("80");
         System.out.println(permissionsgranted + " permission at entry");
+        image.setImageResource(R.mipmap.clap);
         record = new MediaRecorder();
         if (ContextCompat.checkSelfPermission(this,Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
             if (ContextCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
@@ -105,7 +106,7 @@ public class Record extends Activity {
                         speedNum = 80;
                     }
                     returnval.putExtra(Intent.ACTION_PACKAGE_REMOVED,speedNum);
-                    hi = new CountDownTimer(1000000000, 60000 / (speedNum * 2)) {
+                    hi = new CountDownTimer(1000000000, 60000 / speedNum) {
                         //@Override
                         public void onTick(long millisUntilFinished) {
                             if (intent.getStringExtra(Intent.EXTRA_TEXT).equals("Adi Talam")) {
@@ -114,37 +115,37 @@ public class Record extends Activity {
                                         image.setImageResource(R.mipmap.realhand_foreground);
                                         image2.setImageResource(R.mipmap.eight_foreground);
                                         break;
-                                    case 2:
+                                    case 1:
                                         image.setImageResource(R.mipmap.realpinky_foreground);
                                         image2.setImageResource(R.mipmap.seven_foreground);
                                         break;
-                                    case 4:
+                                    case 2:
                                         image.setImageResource(R.mipmap.realring_foreground);
                                         image2.setImageResource(R.mipmap.six_foreground);
                                         break;
-                                    case 6:
+                                    case 3:
                                         image.setImageResource(R.mipmap.realmiddle_foreground);
                                         image2.setImageResource(R.mipmap.five_foreground);
                                         break;
-                                    case 8:
+                                    case 4:
                                         image.setImageResource(R.mipmap.realhand_foreground);
                                         image2.setImageResource(R.mipmap.four_foreground);
                                         break;
-                                    case 10:
+                                    case 5:
                                         image.setImageResource(R.mipmap.realturn_foreground);
                                         image2.setImageResource(R.mipmap.three_foreground);
                                         break;
-                                    case 12:
+                                    case 6:
                                         image.setImageResource(R.mipmap.realhand_foreground);
                                         image2.setImageResource(R.mipmap.two_foreground);
                                         break;
-                                    case 14:
+                                    case 7:
                                         image.setImageResource(R.mipmap.realturn_foreground);
                                         image2.setImageResource(R.mipmap.one_foreground);
                                         break;
                                 }
                                 i++;
-                                if (i >= 16) {
+                                if (i >= 8) {
                                     i = 0;
                                 }
                             } else if (intent.getStringExtra(Intent.EXTRA_TEXT).equals("Misra Chap")) {
@@ -153,32 +154,32 @@ public class Record extends Activity {
                                         image.setImageResource(R.mipmap.realhand_foreground);
                                         image2.setImageResource(R.mipmap.seven_foreground);
                                         break;
-                                    case 2:
+                                    case 1:
                                         image.setImageResource(R.mipmap.hello_foreground);
                                         image2.setImageResource(R.mipmap.six_foreground);
                                         break;
-                                    case 4:
+                                    case 2:
                                         image2.setImageResource(R.mipmap.five_foreground);
                                         break;
-                                    case 6:
+                                    case 3:
                                         image.setImageResource(R.mipmap.realhand_foreground);
                                         image2.setImageResource(R.mipmap.four_foreground);
                                         break;
-                                    case 8:
+                                    case 4:
                                         image.setImageResource(R.mipmap.hello_foreground);
                                         image2.setImageResource(R.mipmap.three_foreground);
                                         break;
-                                    case 10:
+                                    case 5:
                                         image.setImageResource(R.mipmap.realhand_foreground);
                                         image2.setImageResource(R.mipmap.two_foreground);
                                         break;
-                                    case 12:
+                                    case 6:
                                         image.setImageResource(R.mipmap.hello_foreground);
                                         image2.setImageResource(R.mipmap.one_foreground);
                                         break;
                                 }
                                 i++;
-                                if (i >= 14) {
+                                if (i >= 7) {
                                     i = 0;
                                 }
                             }
@@ -191,6 +192,7 @@ public class Record extends Activity {
                         }
 
                         public void onFinish() {
+                            hi.cancel();
                             Log.d("hi", "hello");
                         }
                     };

@@ -23,7 +23,8 @@ class Datatofile {
             ListIterator iter = ll.listIterator();
             while (iter.hasNext()) {
                 String curr = iter.next().toString();
-                fw.append(curr + " " + bpm.get(curr).toString() + " " + talam.get(curr));
+                System.out.println(talam.get(curr) + " from stop");
+                fw.append(curr + " " + bpm.get(curr).toString() + " " + talam.get(curr) + "\n");
             }
             fw.flush();
             fw.close();

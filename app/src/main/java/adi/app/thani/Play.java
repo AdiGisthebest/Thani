@@ -8,7 +8,6 @@ import android.os.CountDownTimer;
 import android.os.Environment;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 
 import androidx.annotation.Nullable;
@@ -38,6 +37,7 @@ public class Play extends Activity {
         String suffix = getIntent().getStringExtra(Intent.EXTRA_COMPONENT_NAME);
         final int bpm = getIntent().getIntExtra(Intent.EXTRA_TEXT,80);
         final String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath() + File.separator + suffix + ".mp4";
+        image.setImageResource(R.mipmap.clap);
         play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -50,94 +50,80 @@ public class Play extends Activity {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                }
-                if (count == 0) {
-                    if (count != 0) {
-                        player.start();
-                        play.setImageDrawable(getDrawable(android.R.drawable.ic_media_pause));
-                    }
-                    player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                        @Override
-                        public void onCompletion(MediaPlayer mp) {
-                            mp.release();
-                            mp = null;
-                            finish();
-                        }
-                    });
-                    hi = new CountDownTimer(1000000000, 60000 / (bpm * 2)) {
-                        //@Override
+                    hi = new CountDownTimer(1000000000, 60000 / bpm) {
                         public void onTick(long millisUntilFinished) {
-                            if (talam.equals("Adi Talam")) {
+                            System.out.println(talam + " talam from play");
+                            if (talam.trim().equals("Adi Talam")) {
                                 switch (i) {
                                     case 0:
                                         image.setImageResource(R.mipmap.realhand_foreground);
                                         image2.setImageResource(R.mipmap.eight_foreground);
                                         break;
-                                    case 2:
+                                    case 1:
                                         image.setImageResource(R.mipmap.realpinky_foreground);
                                         image2.setImageResource(R.mipmap.seven_foreground);
                                         break;
-                                    case 4:
+                                    case 2:
                                         image.setImageResource(R.mipmap.realring_foreground);
                                         image2.setImageResource(R.mipmap.six_foreground);
                                         break;
-                                    case 6:
+                                    case 3:
                                         image.setImageResource(R.mipmap.realmiddle_foreground);
                                         image2.setImageResource(R.mipmap.five_foreground);
                                         break;
-                                    case 8:
+                                    case 4:
                                         image.setImageResource(R.mipmap.realhand_foreground);
                                         image2.setImageResource(R.mipmap.four_foreground);
                                         break;
-                                    case 10:
+                                    case 5:
                                         image.setImageResource(R.mipmap.realturn_foreground);
                                         image2.setImageResource(R.mipmap.three_foreground);
                                         break;
-                                    case 12:
+                                    case 6:
                                         image.setImageResource(R.mipmap.realhand_foreground);
                                         image2.setImageResource(R.mipmap.two_foreground);
                                         break;
-                                    case 14:
+                                    case 7:
                                         image.setImageResource(R.mipmap.realturn_foreground);
                                         image2.setImageResource(R.mipmap.one_foreground);
                                         break;
                                 }
                                 i++;
-                                if (i >= 16) {
+                                if (i >= 8) {
                                     i = 0;
                                 }
-                            } else if (talam.equals("Misra Chap")) {
+                            } else if (talam.trim().equals("Misra Chap")) {
                                 switch (i) {
                                     case 0:
                                         image.setImageResource(R.mipmap.realhand_foreground);
                                         image2.setImageResource(R.mipmap.seven_foreground);
                                         break;
-                                    case 2:
+                                    case 1:
                                         image.setImageResource(R.mipmap.hello_foreground);
                                         image2.setImageResource(R.mipmap.six_foreground);
                                         break;
-                                    case 4:
+                                    case 2:
                                         image2.setImageResource(R.mipmap.five_foreground);
                                         break;
-                                    case 6:
+                                    case 3:
                                         image.setImageResource(R.mipmap.realhand_foreground);
                                         image2.setImageResource(R.mipmap.four_foreground);
                                         break;
-                                    case 8:
+                                    case 4:
                                         image.setImageResource(R.mipmap.hello_foreground);
                                         image2.setImageResource(R.mipmap.three_foreground);
                                         break;
-                                    case 10:
+                                    case 5:
                                         image.setImageResource(R.mipmap.realhand_foreground);
                                         image2.setImageResource(R.mipmap.two_foreground);
                                         break;
-                                    case 12:
+                                    case 6:
                                         image.setImageResource(R.mipmap.hello_foreground);
                                         image2.setImageResource(R.mipmap.one_foreground);
                                         break;
                                 }
                                 i++;
-                                if (i >= 14) {
+                                if (i >= 7) {
                                     i = 0;
                                 }
                             }
@@ -147,9 +133,19 @@ public class Play extends Activity {
                             Log.d("hi", "hello");
                         }
                     };
+                    player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                        @Override
+                        public void onCompletion(MediaPlayer mp) {
+                            mp.release();
+                            hi.cancel();
+                            mp = null;
+                            finish();
+                        }
+                    });
                     hi.start();
                     count++;
                 } else {
+                    hi.cancel();
                     finish();
                 }
             }

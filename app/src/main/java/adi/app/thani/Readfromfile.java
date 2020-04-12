@@ -23,7 +23,9 @@ class Readfromfile {
                 String[] linearr = line.split(" ");
                 retval.recorder.add(linearr[0]);
                 retval.bpm.put(linearr[0], Integer.parseInt(linearr[1]));
-                retval.talam.put(linearr[0], linearr[2]);
+                System.out.println(retval.bpm.get(linearr[0]) + " bpm");
+                retval.talam.put(linearr[0], (linearr[2] + " " + linearr[3]));
+                System.out.println(retval.talam.get(linearr[0]) + " talam");
             }
         } catch (IOException e) {
             System.out.println(e.getMessage());
