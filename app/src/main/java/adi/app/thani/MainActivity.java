@@ -24,7 +24,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 
-import com.github.hiteshsondhi88.libffmpeg.FFmpeg;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
@@ -33,7 +32,6 @@ import java.util.LinkedList;
 import java.util.List;
 public class MainActivity extends AppCompatActivity {
     int i = 0;
-    FFmpeg fFmpeg;
     ArrayAdapter adapter;
     LinkedList<String> recordList = new LinkedList<String>();
     HashMap<String,Integer> bpm;

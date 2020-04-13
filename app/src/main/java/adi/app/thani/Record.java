@@ -18,6 +18,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
@@ -30,6 +31,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
 public class Record extends Activity {
     int permissionsgranted;
@@ -47,10 +49,44 @@ public class Record extends Activity {
     boolean buttonClick;
     Intent returnval;
     ConstraintLayout cl;
+    HashMap<Integer, Integer> mishra;
+    HashMap<Integer, Integer> adi;
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.recorder);
         returnval = new Intent();
+        mishra = new HashMap<Integer, Integer>();
+        mishra.put(0, R.mipmap.realhand_foreground);
+        mishra.put(1, R.mipmap.hello);
+        mishra.put(2, R.mipmap.hello);
+        mishra.put(3, R.mipmap.realhand_foreground);
+        mishra.put(4, R.mipmap.hello);
+        mishra.put(5, R.mipmap.realhand_foreground);
+        mishra.put(6, R.mipmap.hello);
+        mishra.put(7, R.mipmap.seven_foreground);
+        mishra.put(8, R.mipmap.six_foreground);
+        mishra.put(9, R.mipmap.five_foreground);
+        mishra.put(10, R.mipmap.four_foreground);
+        mishra.put(11, R.mipmap.three_foreground);
+        mishra.put(12, R.mipmap.two_foreground);
+        mishra.put(13, R.mipmap.one_foreground);
+        adi = new HashMap<Integer, Integer>();
+        adi.put(0, R.mipmap.realhand_foreground);
+        adi.put(1, R.mipmap.realpinky_foreground);
+        adi.put(2, R.mipmap.realring_foreground);
+        adi.put(3, R.mipmap.realmiddle_foreground);
+        adi.put(4, R.mipmap.realhand_foreground);
+        adi.put(5, R.mipmap.realturn_foreground);
+        adi.put(6, R.mipmap.realhand_foreground);
+        adi.put(7, R.mipmap.realturn_foreground);
+        adi.put(8, R.mipmap.eight_foreground);
+        adi.put(9, R.mipmap.seven_foreground);
+        adi.put(10, R.mipmap.six_foreground);
+        adi.put(11, R.mipmap.five_foreground);
+        adi.put(12, R.mipmap.four_foreground);
+        adi.put(13, R.mipmap.three_foreground);
+        adi.put(14, R.mipmap.two_foreground);
+        adi.put(15, R.mipmap.one_foreground);
         cl = findViewById(R.id.cl);
         count = getIntent().getIntExtra(Intent.EXTRA_INDEX,0);
         image = findViewById(R.id.imageView);
@@ -80,125 +116,86 @@ public class Record extends Activity {
             @SuppressLint("ResourceType")
             @Override
             public void onCheckedChanged(CompoundButton buttonView, final boolean isChecked) {
-                System.out.println();
                 final Intent intent = getIntent();
                 if (isChecked) {
-                    record.setAudioSource(MediaRecorder.AudioSource.MIC);
-                    record.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-                    record.setOutputFile(path + "Thani" + (count - 1) + ".mp4");
-                    record.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-                    try {
-                        record.prepare();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    record.start();
-                    System.out.println("hi1111111111111111111111111111111111111111");
-                    System.out.println("hi2");
-                    speed.setVisibility(View.INVISIBLE);
-                    int speedNum;
-                    if (speed.getText().toString().toCharArray().length >= 5) {
-                        speedNum = 80;
+                    if (Integer.parseInt(speed.getText().toString()) >= 165) {
+                        Toast.makeText(Record.this, "Please enter a lower speed", Toast.LENGTH_SHORT).show();
+                        toggle.setChecked(false);
+                        speed.setVisibility(View.VISIBLE);
                     } else {
-                        speedNum = Integer.parseInt(speed.getText().toString());
-                    }
-                    if (speedNum >= 30000) {
-                        speedNum = 80;
-                    }
-                    returnval.putExtra(Intent.ACTION_PACKAGE_REMOVED,speedNum);
-                    hi = new CountDownTimer(1000000000, 60000 / speedNum) {
-                        //@Override
-                        public void onTick(long millisUntilFinished) {
-                            if (intent.getStringExtra(Intent.EXTRA_TEXT).equals("Adi Talam")) {
-                                switch (i) {
-                                    case 0:
-                                        image.setImageResource(R.mipmap.realhand_foreground);
-                                        image2.setImageResource(R.mipmap.eight_foreground);
-                                        break;
-                                    case 1:
-                                        image.setImageResource(R.mipmap.realpinky_foreground);
-                                        image2.setImageResource(R.mipmap.seven_foreground);
-                                        break;
-                                    case 2:
-                                        image.setImageResource(R.mipmap.realring_foreground);
-                                        image2.setImageResource(R.mipmap.six_foreground);
-                                        break;
-                                    case 3:
-                                        image.setImageResource(R.mipmap.realmiddle_foreground);
-                                        image2.setImageResource(R.mipmap.five_foreground);
-                                        break;
-                                    case 4:
-                                        image.setImageResource(R.mipmap.realhand_foreground);
-                                        image2.setImageResource(R.mipmap.four_foreground);
-                                        break;
-                                    case 5:
-                                        image.setImageResource(R.mipmap.realturn_foreground);
-                                        image2.setImageResource(R.mipmap.three_foreground);
-                                        break;
-                                    case 6:
-                                        image.setImageResource(R.mipmap.realhand_foreground);
-                                        image2.setImageResource(R.mipmap.two_foreground);
-                                        break;
-                                    case 7:
-                                        image.setImageResource(R.mipmap.realturn_foreground);
-                                        image2.setImageResource(R.mipmap.one_foreground);
-                                        break;
-                                }
-                                i++;
-                                if (i >= 8) {
-                                    i = 0;
-                                }
-                            } else if (intent.getStringExtra(Intent.EXTRA_TEXT).equals("Misra Chap")) {
-                                switch (i) {
-                                    case 0:
-                                        image.setImageResource(R.mipmap.realhand_foreground);
-                                        image2.setImageResource(R.mipmap.seven_foreground);
-                                        break;
-                                    case 1:
-                                        image.setImageResource(R.mipmap.hello_foreground);
-                                        image2.setImageResource(R.mipmap.six_foreground);
-                                        break;
-                                    case 2:
-                                        image2.setImageResource(R.mipmap.five_foreground);
-                                        break;
-                                    case 3:
-                                        image.setImageResource(R.mipmap.realhand_foreground);
-                                        image2.setImageResource(R.mipmap.four_foreground);
-                                        break;
-                                    case 4:
-                                        image.setImageResource(R.mipmap.hello_foreground);
-                                        image2.setImageResource(R.mipmap.three_foreground);
-                                        break;
-                                    case 5:
-                                        image.setImageResource(R.mipmap.realhand_foreground);
-                                        image2.setImageResource(R.mipmap.two_foreground);
-                                        break;
-                                    case 6:
-                                        image.setImageResource(R.mipmap.hello_foreground);
-                                        image2.setImageResource(R.mipmap.one_foreground);
-                                        break;
-                                }
-                                i++;
-                                if (i >= 7) {
-                                    i = 0;
-                                }
-                            }
-                            if (!visibleChecked) {
-                                if (hi != null) {
-                                    hi.cancel();
-                                    hi = null;
-                                }
-                            }
+                        record.setAudioSource(MediaRecorder.AudioSource.MIC);
+                        record.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+                        record.setOutputFile(path + "Thani" + (count - 1) + ".mp4");
+                        record.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+                        try {
+                            record.prepare();
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
+                        System.out.println("hi1111111111111111111111111111111111111111");
+                        System.out.println("hi2");
+                        speed.setVisibility(View.INVISIBLE);
+                        int speedNum;
+                        if (speed.getText().toString().toCharArray().length >= 5) {
+                            speedNum = 80;
+                        } else {
+                            speedNum = Integer.parseInt(speed.getText().toString());
+                        }
+                        returnval.putExtra(Intent.ACTION_PACKAGE_REMOVED, speedNum);
+                        if (intent.getStringExtra(Intent.EXTRA_TEXT).equals("Adi Talam")) {
+                            hi = new CountDownTimer(1000000000, 60000 / speedNum) {
+                                //@Override
+                                public void onTick(long millisUntilFinished) {
+                                    System.out.println(millisUntilFinished);
+                                    image.setImageResource(adi.get(i));
+                                    image2.setImageResource(adi.get(i + 8));
+                                    i++;
+                                    if (i >= 8) {
+                                        i = 0;
+                                    }
+                                    if (!visibleChecked) {
+                                        if (hi != null) {
+                                            hi.cancel();
+                                            hi = null;
+                                        }
+                                    }
+                                }
 
-                        public void onFinish() {
-                            hi.cancel();
-                            Log.d("hi", "hello");
+                                public void onFinish() {
+                                    hi.cancel();
+                                    Log.d("hi", "hello");
+                                }
+                            };
+                        } else if (intent.getStringExtra(Intent.EXTRA_TEXT).equals("Misra Chap")) {
+                            hi = new CountDownTimer(1000000000, 60000 / speedNum) {
+                                //@Override
+                                public void onTick(long millisUntilFinished) {
+                                    System.out.println(millisUntilFinished);
+                                    System.out.println(millisUntilFinished);
+                                    image.setImageResource(mishra.get(i));
+                                    image2.setImageResource(mishra.get(i + 8));
+                                    i++;
+                                    if (i >= 7) {
+                                        i = 0;
+                                    }
+                                    if (!visibleChecked) {
+                                        if (hi != null) {
+                                            hi.cancel();
+                                            hi = null;
+                                        }
+                                    }
+                                }
+
+                                public void onFinish() {
+                                    hi.cancel();
+                                    Log.d("hi", "hello");
+                                }
+                            };
                         }
-                    };
-                    hi.start();
+                        record.start();
+                        hi.start();
+                    }
                 } else {
-                    record.stop();
                     LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
                     View popview = inflater.inflate(R.layout.popup, null);
                     final PopupWindow pop = new PopupWindow(popview, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -214,11 +211,13 @@ public class Record extends Activity {
                     name.setText("Thani" + count);
                     pop.update();
                     buttonClick = false;
+                    record.stop();
                     del.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             buttonClick = true;
                             pop.dismiss();
+                            hi.cancel();
                             record.release();
                             File file1 = new File(path + "Thani" + (count - 1) + ".mp4");
                             file1.delete();
@@ -229,6 +228,7 @@ public class Record extends Activity {
                     save.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            hi.cancel();
                             buttonClick = true;
                             pop.dismiss();
                             record.release();
@@ -244,6 +244,7 @@ public class Record extends Activity {
                         @Override
                         public void onDismiss() {
                             if (!buttonClick) {
+                                hi.cancel();
                                 record.release();
                                 record = null;
                                 File file1 = new File(path + "Thani" + (count - 1) + ".mp4");
