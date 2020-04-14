@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
         talam = Readfromfile.read(this).talam;
         recordList = Readfromfile.read(this).recorder;
         setContentView(R.layout.activity_main);
+        i = Readfromfile.readInt(this);
         FloatingActionButton fab = findViewById(R.id.floatingActionButton);
         ListView listView = findViewById(R.id.listView);
         adapter = new ArrayAdapter(this,android.R.layout.simple_list_item_1,recordList);
@@ -73,7 +74,6 @@ public class MainActivity extends AppCompatActivity {
                                 } else {
                                     Toast.makeText(MainActivity.this,"File Deletion Failed",Toast.LENGTH_SHORT);
                                 }
-                                i--;
                                 adapter.remove(suffix);
                                 adapter.notifyDataSetChanged();
                             break;
@@ -136,6 +136,8 @@ public class MainActivity extends AppCompatActivity {
                     public boolean onMenuItemClick(MenuItem item) {
                         Intent hi = new Intent(MainActivity.this,Record.class);
                         hi.putExtra(Intent.EXTRA_TEXT,item.getTitle());
+                        String[] hi17 = new String[0];
+                        hi.putExtra(Intent.EXTRA_REFERRER, recordList.toArray(hi17));
                         hi.putExtra(Intent.EXTRA_INDEX,i);
                         startActivityForResult(hi,0);
                         return false;
@@ -148,8 +150,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        Datatofile file = new Datatofile();
-        Datatofile.fileWrite(recordList, bpm, talam, this);
+        Datatofile.fileWrite(recordList, bpm, talam, this, i);
     }
 
     @Override
@@ -161,6 +162,10 @@ public class MainActivity extends AppCompatActivity {
                 int bpmItem = data.getIntExtra(Intent.ACTION_PACKAGE_REMOVED, 0);
                 String talamItem = data.getStringExtra(Intent.EXTRA_PACKAGE_NAME);
                 String name = data.getStringExtra(Intent.EXTRA_STREAM);
+                boolean override = data.getBooleanExtra(Intent.EXTRA_REFERRER_NAME, false);
+                if (override) {
+                    adapter.remove(name);
+                }
                 bpm.put(name,bpmItem);
                 talam.put(name,talamItem);
                 recordList.add(name);
@@ -168,7 +173,4 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
-    //@Override
-
 }

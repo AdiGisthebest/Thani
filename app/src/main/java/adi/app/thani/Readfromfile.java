@@ -4,15 +4,11 @@ import android.content.Context;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Scanner;
 
 class Readfromfile {
     public static Container read(Context context) {
         Container retval = new Container();
-        SimpleDateFormat hi = new SimpleDateFormat("yyyy-MM-dd-hh-mm");
-        Date duedate;
         try {
             String line;
             int preserve = 0;
@@ -29,6 +25,19 @@ class Readfromfile {
             }
         } catch (IOException e) {
             System.out.println(e.getMessage());
+        }
+        return retval;
+    }
+
+    public static int readInt(Context context) {
+        int retval = 0;
+        File intFile = new File(context.getFilesDir(), "Num.txt");
+        try {
+            Scanner scan = new Scanner(intFile);
+            String retInt = scan.nextLine();
+            retval = Integer.parseInt(retInt);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return retval;
     }

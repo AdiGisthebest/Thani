@@ -72,7 +72,6 @@ public class Play extends Activity {
         String suffix = getIntent().getStringExtra(Intent.EXTRA_COMPONENT_NAME);
         final int bpm = getIntent().getIntExtra(Intent.EXTRA_TEXT,80);
         final String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath() + File.separator + suffix + ".mp4";
-        image.setImageResource(R.mipmap.clap);
         play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

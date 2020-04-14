@@ -6,9 +6,10 @@
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView"
-        android:layout_width="340dp"
-        android:layout_height="296dp"
+        android:layout_width="338dp"
+        android:layout_height="173dp"
         android:clickable="false"
+        app:cardBackgroundColor="#ECECEC"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.427"
@@ -22,7 +23,7 @@
             android:layout_height="wrap_content"
             android:clickable="true"
             android:translationX="40dp"
-            android:translationY="200dp"
+            android:translationY="100dp"
             app:srcCompat="@android:drawable/ic_menu_delete" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -31,7 +32,7 @@
             android:layout_height="103dp"
             android:clickable="true"
             android:translationX="240dp"
-            android:translationY="200dp"
+            android:translationY="100dp"
             app:fabSize="normal"
             app:srcCompat="@android:drawable/ic_input_add" />
 

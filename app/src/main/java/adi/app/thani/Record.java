@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -14,6 +15,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -95,7 +97,6 @@ public class Record extends Activity {
         speed = findViewById(R.id.editText);
         speed.setText("80");
         System.out.println(permissionsgranted + " permission at entry");
-        image.setImageResource(R.mipmap.clap);
         record = new MediaRecorder();
         if (ContextCompat.checkSelfPermission(this,Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
             if (ContextCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
@@ -115,7 +116,7 @@ public class Record extends Activity {
         toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @SuppressLint("ResourceType")
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, final boolean isChecked) {
+            public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
                 final Intent intent = getIntent();
                 if (isChecked) {
                     if (Integer.parseInt(speed.getText().toString()) >= 165) {
@@ -173,7 +174,7 @@ public class Record extends Activity {
                                     System.out.println(millisUntilFinished);
                                     System.out.println(millisUntilFinished);
                                     image.setImageResource(mishra.get(i));
-                                    image2.setImageResource(mishra.get(i + 8));
+                                    image2.setImageResource(mishra.get(i + 7));
                                     i++;
                                     if (i >= 7) {
                                         i = 0;
@@ -196,65 +197,105 @@ public class Record extends Activity {
                         hi.start();
                     }
                 } else {
-                    LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-                    View popview = inflater.inflate(R.layout.popup, null);
-                    final PopupWindow pop = new PopupWindow(popview, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                    pop.setOutsideTouchable(false);
-                    pop.setFocusable(true);
-                    pop.showAtLocation(buttonView, Gravity.CENTER, 0, 0);
-                    setResult(RESULT_OK, returnval);
-                    returnval.putExtra(Intent.EXTRA_TEXT, count);
-                    returnval.putExtra(Intent.EXTRA_PACKAGE_NAME,intent.getStringExtra(Intent.EXTRA_TEXT));
-                    FloatingActionButton del = popview.findViewById(R.id.floatingActionButton3);
-                    FloatingActionButton save = popview.findViewById(R.id.floatingActionButton4);
-                    final EditText name = popview.findViewById(R.id.editText2);
-                    name.setText("Thani" + count);
-                    pop.update();
-                    buttonClick = false;
+                    hi.cancel();
                     record.stop();
-                    del.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            buttonClick = true;
-                            pop.dismiss();
-                            hi.cancel();
-                            record.release();
-                            File file1 = new File(path + "Thani" + (count - 1) + ".mp4");
-                            file1.delete();
-                            setResult(RESULT_CANCELED, returnval);
-                            finish();
-                        }
-                    });
-                    save.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            hi.cancel();
-                            buttonClick = true;
-                            pop.dismiss();
-                            record.release();
-                            record = null;
-                            File file1 = new File(path + "Thani" + (count - 1) + ".mp4");
-                            File file = new File(path + name.getText().toString() + ".mp4");
-                            file1.renameTo(file);
-                            returnval.putExtra(Intent.EXTRA_STREAM, name.getText().toString());
-                            finish();
-                        }
-                    });
-                    pop.setOnDismissListener(new PopupWindow.OnDismissListener() {
-                        @Override
-                        public void onDismiss() {
-                            if (!buttonClick) {
-                                hi.cancel();
-                                record.release();
-                                record = null;
-                                File file1 = new File(path + "Thani" + (count - 1) + ".mp4");
-                                File file = new File(path + name.getText().toString() + ".mp4");
-                                file1.renameTo(file);
-                                returnval.putExtra(Intent.EXTRA_STREAM, name.getText().toString());
-                                finish();
-                            }
-                        }
-                    });
+                    record.release();
+                    image.setImageResource(R.mipmap.hello);
+                    image2.setImageResource(R.mipmap.hello);
+                    image3.setImageResource(R.mipmap.hello);
+                    toggle.setVisibility(View.INVISIBLE);
+                    ConstraintLayout constrain = findViewById(R.id.cl);
+                    constrain.setBackgroundColor(Color.parseColor("#"));
+                    rename(buttonView, intent);
+                }
+            }
+        });
+    }
+
+    public void override(View view, final String name) {
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        View popview = inflater.inflate(R.layout.name, null);
+        final PopupWindow popup = new PopupWindow(popview, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        popup.setOutsideTouchable(false);
+        popup.showAtLocation(view, Gravity.CENTER, 0, 0);
+        Button yes = popview.findViewById(R.id.button3);
+        Button no = popview.findViewById(R.id.button2);
+        yes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                popup.dismiss();
+                File file1 = new File(path + "Thani" + (count - 1) + ".mp4");
+                File file = new File(path + name + ".mp4");
+                file1.renameTo(file);
+                returnval.putExtra(Intent.EXTRA_REFERRER_NAME, true);
+                returnval.putExtra(Intent.EXTRA_STREAM, name);
+                finish();
+            }
+        });
+        no.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                popup.dismiss();
+                rename(v, getIntent());
+            }
+        });
+    }
+
+    public void rename(View v, Intent intent) {
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        View popview = inflater.inflate(R.layout.popup, null);
+        final PopupWindow pop = new PopupWindow(popview, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        pop.setOutsideTouchable(false);
+        pop.setFocusable(true);
+        pop.showAtLocation(v, Gravity.CENTER, 0, 0);
+        setResult(RESULT_OK, returnval);
+        returnval.putExtra(Intent.EXTRA_TEXT, count);
+        returnval.putExtra(Intent.EXTRA_PACKAGE_NAME, intent.getStringExtra(Intent.EXTRA_TEXT));
+        FloatingActionButton del = popview.findViewById(R.id.floatingActionButton3);
+        FloatingActionButton save = popview.findViewById(R.id.floatingActionButton4);
+        final EditText name = popview.findViewById(R.id.editText2);
+        name.setText("Thani" + count);
+        pop.update();
+        buttonClick = false;
+        del.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                buttonClick = true;
+                pop.dismiss();
+                File file1 = new File(path + "Thani" + (count - 1) + ".mp4");
+                file1.delete();
+                setResult(RESULT_CANCELED, returnval);
+                finish();
+            }
+        });
+        save.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                buttonClick = true;
+                pop.dismiss();
+                record = null;
+                if (Datatofile.contains(getIntent().getStringArrayExtra(Intent.EXTRA_REFERRER), name.getText().toString())) {
+                    Record.this.override(v, name.getText().toString());
+                } else {
+                    File file1 = new File(path + "Thani" + (count - 1) + ".mp4");
+                    File file = new File(path + name.getText().toString() + ".mp4");
+                    file1.renameTo(file);
+                    returnval.putExtra(Intent.EXTRA_STREAM, name.getText().toString());
+                    finish();
+                }
+            }
+        });
+        pop.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                if (!buttonClick) {
+                    record.release();
+                    record = null;
+                    File file1 = new File(path + "Thani" + (count - 1) + ".mp4");
+                    File file = new File(path + name.getText().toString() + ".mp4");
+                    file1.renameTo(file);
+                    returnval.putExtra(Intent.EXTRA_STREAM, name.getText().toString());
+                    finish();
                 }
             }
         });
