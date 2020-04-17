@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -53,6 +54,7 @@ public class Record extends Activity {
     ConstraintLayout cl;
     HashMap<Integer, Integer> mishra;
     HashMap<Integer, Integer> adi;
+    MediaPlayer player;
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.recorder);
@@ -90,6 +92,8 @@ public class Record extends Activity {
         adi.put(14, R.mipmap.two_foreground);
         adi.put(15, R.mipmap.one_foreground);
         cl = findViewById(R.id.cl);
+        player = MediaPlayer.create(Record.this, R.raw.clap);
+        player.start();
         count = getIntent().getIntExtra(Intent.EXTRA_INDEX,0);
         image = findViewById(R.id.imageView);
         image2 = findViewById(R.id.imageView2);
@@ -119,7 +123,7 @@ public class Record extends Activity {
             public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
                 final Intent intent = getIntent();
                 if (isChecked) {
-                    if (Integer.parseInt(speed.getText().toString()) >= 165) {
+                    if (Integer.parseInt(speed.getText().toString()) >= 161) {
                         Toast.makeText(Record.this, "Please enter a lower speed", Toast.LENGTH_SHORT).show();
                         toggle.setChecked(false);
                         speed.setVisibility(View.VISIBLE);
@@ -147,6 +151,7 @@ public class Record extends Activity {
                             hi = new CountDownTimer(1000000000, 60000 / speedNum) {
                                 //@Override
                                 public void onTick(long millisUntilFinished) {
+                                    player.start();
                                     System.out.println(millisUntilFinished);
                                     image.setImageResource(adi.get(i));
                                     image2.setImageResource(adi.get(i + 8));
@@ -194,20 +199,26 @@ public class Record extends Activity {
                             };
                         }
                         record.start();
+                        player.start();
                         hi.start();
                     }
                 } else {
                     hi.cancel();
                     record.stop();
                     record.release();
+                    record = null;
                     image.setImageResource(R.mipmap.hello);
                     image2.setImageResource(R.mipmap.hello);
                     image3.setImageResource(R.mipmap.hello);
                     toggle.setVisibility(View.INVISIBLE);
+                    image.setVisibility(View.INVISIBLE);
+                    image2.setVisibility(View.INVISIBLE);
+                    image3.setVisibility(View.INVISIBLE);
                     ConstraintLayout constrain = findViewById(R.id.cl);
-                    constrain.setBackgroundColor(Color.parseColor("#"));
+                    constrain.setBackgroundColor(Color.parseColor("#CCCCCC"));
                     rename(buttonView, intent);
                 }
+
             }
         });
     }
@@ -273,7 +284,6 @@ public class Record extends Activity {
             public void onClick(View v) {
                 buttonClick = true;
                 pop.dismiss();
-                record = null;
                 if (Datatofile.contains(getIntent().getStringArrayExtra(Intent.EXTRA_REFERRER), name.getText().toString())) {
                     Record.this.override(v, name.getText().toString());
                 } else {
@@ -289,8 +299,6 @@ public class Record extends Activity {
             @Override
             public void onDismiss() {
                 if (!buttonClick) {
-                    record.release();
-                    record = null;
                     File file1 = new File(path + "Thani" + (count - 1) + ".mp4");
                     File file = new File(path + name.getText().toString() + ".mp4");
                     file1.renameTo(file);
@@ -322,5 +330,38 @@ public class Record extends Activity {
                 run();
             }
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        ConstraintLayout layout = findViewById(R.id.cl);
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        View popview = inflater.inflate(R.layout.backpop, null);
+        final PopupWindow pop = new PopupWindow(popview, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        pop.setOutsideTouchable(false);
+        pop.setFocusable(true);
+        pop.showAtLocation(layout, Gravity.CENTER, 0, 0);
+        Button yes = popview.findViewById(R.id.yes);
+        Button no = popview.findViewById(R.id.no);
+        yes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                pop.dismiss();
+                setResult(RESULT_CANCELED);
+                hi.cancel();
+                if (record != null) {
+                    record.stop();
+                    record.release();
+                    record = null;
+                }
+                finish();
+            }
+        });
+        no.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                pop.dismiss();
+            }
+        });
     }
 }

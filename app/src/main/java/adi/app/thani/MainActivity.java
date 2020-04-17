@@ -158,6 +158,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             if (requestCode == 0) {
+                System.out.println("Hello2");
                 i = data.getIntExtra(Intent.EXTRA_TEXT, 0);
                 int bpmItem = data.getIntExtra(Intent.ACTION_PACKAGE_REMOVED, 0);
                 String talamItem = data.getStringExtra(Intent.EXTRA_PACKAGE_NAME);
@@ -166,8 +167,8 @@ public class MainActivity extends AppCompatActivity {
                 if (override) {
                     adapter.remove(name);
                 }
-                bpm.put(name,bpmItem);
-                talam.put(name,talamItem);
+                bpm.put(name, bpmItem);
+                talam.put(name, talamItem);
                 recordList.add(name);
                 adapter.notifyDataSetChanged();
             }

@@ -75,6 +75,7 @@ public class Play extends Activity {
         play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                play.setImageDrawable(getDrawable(android.R.drawable.ic_media_pause));
                 if (count == 0) {
                     player = new MediaPlayer();
                     try {
@@ -107,9 +108,9 @@ public class Play extends Activity {
                             public void onTick(long millisUntilFinished) {
                                 System.out.println(millisUntilFinished);
                                 image.setImageResource(mishra.get(i));
-                                image2.setImageResource(mishra.get(i + 8));
+                                image2.setImageResource(mishra.get(i + 7));
                                 i++;
-                                if (i >= 8) {
+                                if (i >= 7) {
                                     i = 0;
                                 }
                             }
