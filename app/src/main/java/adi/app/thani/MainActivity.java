@@ -36,12 +36,11 @@ public class MainActivity extends AppCompatActivity {
     LinkedList<String> recordList = new LinkedList<String>();
     HashMap<String,Integer> bpm;
     HashMap<String,String> talam;
+    String path;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        bpm = Readfromfile.read(this).bpm;
-        talam = Readfromfile.read(this).talam;
-        recordList = Readfromfile.read(this).recorder;
+        recordList = Readfromfile.read(this);
         setContentView(R.layout.activity_main);
         i = Readfromfile.readInt(this);
         FloatingActionButton fab = findViewById(R.id.floatingActionButton);
@@ -57,28 +56,24 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
                         final String suffix = parent.getItemAtPosition(position).toString();
-                        final String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath() + File.separator + suffix + ".mp4";
+                        path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath() + File.separator + suffix + ".mp4";
                         switch((String)item.getTitle()) {
-                            case "Play Audio":
-                                System.out.println("Play Audio");
+                            case "Play Video":
                                 Intent play = new Intent(MainActivity.this,Play.class);
-                                play.putExtra(Intent.EXTRA_TEXT,bpm.get(suffix));
                                 play.putExtra(Intent.EXTRA_COMPONENT_NAME,suffix);
-                                play.putExtra(Intent.EXTRA_INDEX,talam.get(suffix));
                                 startActivity(play);
                             break;
                             case "Delete":
                                 File thingToDel = new File(path);
                                 if (thingToDel.delete()) {
-                                    Toast.makeText(MainActivity.this,"File Successfully Deleted",Toast.LENGTH_SHORT);
+                                    Toast.makeText(MainActivity.this, "Video Successfully Deleted", Toast.LENGTH_SHORT).show();
                                 } else {
-                                    Toast.makeText(MainActivity.this,"File Deletion Failed",Toast.LENGTH_SHORT);
+                                    Toast.makeText(MainActivity.this, "Video Deletion Failed", Toast.LENGTH_SHORT).show();
                                 }
                                 adapter.remove(suffix);
                                 adapter.notifyDataSetChanged();
                             break;
                             case "Share":
-                                System.out.println(path);
                                 File file = new File(path);
                                 Uri fileuri = FileProvider.getUriForFile(getApplicationContext(),BuildConfig.APPLICATION_ID + ".provider",file);
                                 Intent data = new Intent();
@@ -93,31 +88,7 @@ public class MainActivity extends AppCompatActivity {
                                 startActivity(Intent.createChooser(data,null));
                             break;
                             case "Rename":
-                                LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-                                View popview = inflater.inflate(R.layout.rename, null);
-                                final PopupWindow pop = new PopupWindow(popview, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                                Button button = popview.findViewById(R.id.button);
-                                final EditText name = popview.findViewById(R.id.editText3);
-                                name.setText(suffix);
-                                final int bpmattr = bpm.get(suffix);
-                                bpm.remove(suffix);
-                                final String talamattr = talam.get(suffix);
-                                talam.remove(suffix);
-                                pop.setFocusable(true);
-                                pop.showAtLocation(view, Gravity.CENTER, 50, 50);
-                                button.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        pop.dismiss();
-                                        File file1 = new File(path);
-                                        File file2 = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath() + File.separator + name.getText().toString() + ".mp4");
-                                        file1.renameTo(file2);
-                                        bpm.put(name.getText().toString(), bpmattr);
-                                        talam.put(name.getText().toString(), talamattr);
-                                        adapter.remove(suffix);
-                                        adapter.add(name.getText().toString());
-                                    }
-                                });
+                                rename(suffix, view);
                         }
                         return false;
                     }
@@ -150,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        Datatofile.fileWrite(recordList, bpm, talam, this, i);
+        Datatofile.fileWrite(recordList, this, i);
     }
 
     @Override
@@ -158,20 +129,41 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             if (requestCode == 0) {
-                System.out.println("Hello2");
                 i = data.getIntExtra(Intent.EXTRA_TEXT, 0);
-                int bpmItem = data.getIntExtra(Intent.ACTION_PACKAGE_REMOVED, 0);
-                String talamItem = data.getStringExtra(Intent.EXTRA_PACKAGE_NAME);
                 String name = data.getStringExtra(Intent.EXTRA_STREAM);
                 boolean override = data.getBooleanExtra(Intent.EXTRA_REFERRER_NAME, false);
                 if (override) {
                     adapter.remove(name);
                 }
-                bpm.put(name, bpmItem);
-                talam.put(name, talamItem);
                 recordList.add(name);
                 adapter.notifyDataSetChanged();
             }
         }
+    }
+
+    public void rename(final String suffix, final View view) {
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        View popview = inflater.inflate(R.layout.rename, null);
+        final PopupWindow pop = new PopupWindow(popview, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        Button button = popview.findViewById(R.id.button);
+        final EditText name = popview.findViewById(R.id.editText3);
+        name.setText(suffix);
+        pop.setFocusable(true);
+        pop.showAtLocation(view, Gravity.CENTER, 50, 50);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (recordList.contains(name.getText().toString()) && !suffix.equals(name.getText().toString())) {
+                    Toast.makeText(MainActivity.this, "This file already exists please enter a new name", Toast.LENGTH_SHORT).show();
+                } else {
+                    pop.dismiss();
+                    File file1 = new File(path);
+                    File file2 = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath() + File.separator + name.getText().toString() + ".mp4");
+                    file1.renameTo(file2);
+                    adapter.remove(suffix);
+                    adapter.add(name.getText().toString());
+                }
+            }
+        });
     }
 }

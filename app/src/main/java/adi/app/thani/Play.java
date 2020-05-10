@@ -3,36 +3,51 @@ package adi.app.thani;
 import android.app.Activity;
 import android.content.Intent;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.os.Environment;
-import android.util.Log;
-import android.view.View;
-import android.widget.ImageView;
+import android.util.DisplayMetrics;
+import android.view.ViewGroup;
+import android.widget.MediaController;
+import android.widget.VideoView;
 
 import androidx.annotation.Nullable;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 
 public class Play extends Activity {
-    //@Override
-    CountDownTimer hi;
     MediaPlayer player;
     int count;
-    int i;
     String talam;
-    int millisLeft = 0;
     HashMap<Integer, Integer> adi;
     HashMap<Integer, Integer> mishra;
+
+    public int[] dimens() {
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        int Dispheight = metrics.heightPixels * 160 / metrics.densityDpi;
+        int Dispwidth = metrics.heightPixels * 160 / metrics.densityDpi;
+        int origHeight = 170;
+        int origWidth = 125;
+        int[] retval = {125, 170};
+        for (int j = 0; j < 100; j++) {
+            while (retval[0] + origWidth > Dispwidth) {
+                origWidth = origWidth / 2;
+            }
+            retval[0] = retval[0] + origWidth;
+        }
+        for (int j = 0; j < 100; j++) {
+            while (retval[1] + origHeight > Dispheight) {
+                origHeight = origHeight / 2;
+            }
+            retval[1] = retval[1] + origHeight;
+        }
+        return retval;
+    }
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.play);
-        final FloatingActionButton play = findViewById(R.id.floatingActionButton2);
-        talam = getIntent().getStringExtra(Intent.EXTRA_INDEX);
         count = 0;
         mishra = new HashMap<Integer, Integer>();
         mishra.put(0, R.mipmap.realhand_foreground);
@@ -66,83 +81,33 @@ public class Play extends Activity {
         adi.put(13, R.mipmap.three_foreground);
         adi.put(14, R.mipmap.two_foreground);
         adi.put(15, R.mipmap.one_foreground);
-        final ImageView image = findViewById(R.id.imageView4);
-        final ImageView image2 = findViewById(R.id.imageView5);
-        final ImageView image3 = findViewById(R.id.imageView6);
+        final VideoView vid = findViewById(R.id.videoView2);
         String suffix = getIntent().getStringExtra(Intent.EXTRA_COMPONENT_NAME);
-        final int bpm = getIntent().getIntExtra(Intent.EXTRA_TEXT,80);
         final String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath() + File.separator + suffix + ".mp4";
-        play.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                play.setImageDrawable(getDrawable(android.R.drawable.ic_media_pause));
-                if (count == 0) {
-                    player = new MediaPlayer();
-                    try {
-                        player.setDataSource(path);
-                        player.prepare();
-                        System.out.println("hi2");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    if (getIntent().getStringExtra(Intent.EXTRA_INDEX).equals("Adi Talam")) {
-                        player.start();
-                        hi = new CountDownTimer(1000000000, 60000 / bpm) {
-                            public void onTick(long millisUntilFinished) {
-                                System.out.println(millisUntilFinished);
-                                image.setImageResource(adi.get(i));
-                                image2.setImageResource(adi.get(i + 8));
-                                i++;
-                                if (i >= 8) {
-                                    i = 0;
-                                }
-                            }
-
-                            public void onFinish() {
-                                Log.d("hi", "hello");
-                            }
-                        }.start();
-                    } else if (getIntent().getStringExtra(Intent.EXTRA_INDEX).equals("Misra Chap")) {
-                        player.start();
-                        hi = new CountDownTimer(1000, 60000 / bpm) {
-                            public void onTick(long millisUntilFinished) {
-                                System.out.println(millisUntilFinished);
-                                image.setImageResource(mishra.get(i));
-                                image2.setImageResource(mishra.get(i + 7));
-                                i++;
-                                if (i >= 7) {
-                                    i = 0;
-                                }
-                            }
-
-                            public void onFinish() {
-                                Log.d("hi", "hello");
-                            }
-                        }.start();
-                    }
-                    player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                        @Override
-                        public void onCompletion(MediaPlayer mp) {
-                            mp.release();
-                            hi.cancel();
-                            mp = null;
-                            finish();
-                        }
-                    });
-                    count++;
-                } else {
-                    System.out.println("hi3");
-                    hi.cancel();
-                    finish();
+        Uri uri = Uri.parse(path);
+        vid.setVideoURI(uri);
+        ViewGroup.LayoutParams params = vid.getLayoutParams();
+        int[] dimens = this.dimens();
+        params.height = dimens[1];
+        params.width = dimens[0];
+        vid.setLayoutParams(params);
+        vid.setMediaController(new MediaController(this));
+        if (count == 0) {
+            vid.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    vid.start();
                 }
+            });
+        }
+        vid.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                finish();
             }
         });
     }
     protected void onStop() {
         super.onStop();
-        if (player != null) {
-            player.release();
-            player = null;
-        }
     }
 }

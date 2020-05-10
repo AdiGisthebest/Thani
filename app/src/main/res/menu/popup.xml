@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/khanda"
+        android:title="Khanda Chap" />
     <item android:title="Adi Talam"
         android:id="@+id/adi"/>
     <item android:title="Misra Chap"
         android:id="@+id/misra"/>
+    <item
+        android:id="@+id/Rupakam"
+        android:title="Rupaka Talam" />
 </menu>
