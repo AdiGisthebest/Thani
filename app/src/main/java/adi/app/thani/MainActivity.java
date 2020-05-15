@@ -24,8 +24,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
 import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -43,9 +41,10 @@ public class MainActivity extends AppCompatActivity {
         recordList = Readfromfile.read(this);
         setContentView(R.layout.activity_main);
         i = Readfromfile.readInt(this);
-        FloatingActionButton fab = findViewById(R.id.floatingActionButton);
+        Button fab = findViewById(R.id.floatingActionButton);
         ListView listView = findViewById(R.id.listView);
         adapter = new ArrayAdapter(this,android.R.layout.simple_list_item_1,recordList);
+        listView.setBackgroundResource(R.drawable.roundedlistview);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {

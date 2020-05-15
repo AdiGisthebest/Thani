@@ -653,6 +653,7 @@ public class Record extends Activity implements Camera2Listener {
                     image.setVisibility(View.INVISIBLE);
                     image2.setVisibility(View.INVISIBLE);
                     image3.setVisibility(View.INVISIBLE);
+                    mCameraLayout.setVisibility(View.INVISIBLE);
                     rename(buttonView, intent);
                 }
 

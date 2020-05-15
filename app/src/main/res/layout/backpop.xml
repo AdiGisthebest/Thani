@@ -7,6 +7,8 @@
     <androidx.cardview.widget.CardView
         android:layout_width="303dp"
         android:layout_height="160dp"
+        app:cardBackgroundColor="#ECECEC"
+        app:cardCornerRadius="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -27,6 +29,8 @@
             android:id="@+id/no"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@drawable/roundbutton"
+            android:backgroundTint="#BCBCBC"
             android:text="no"
             android:translationX="15dp"
             android:translationY="100dp" />
@@ -35,6 +39,8 @@
             android:id="@+id/yes"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@drawable/roundbutton"
+            android:backgroundTint="#BCBCBC"
             android:text="yes"
             android:translationX="200dp"
             android:translationY="100dp" />

@@ -36,6 +36,9 @@ public class Play extends Activity {
                 origWidth = origWidth / 2;
             }
             retval[0] = retval[0] + origWidth;
+            System.out.println(retval[0] + " ret");
+            System.out.println(Dispwidth + " disp");
+            System.out.println(origWidth);
         }
         for (int j = 0; j < 100; j++) {
             while (retval[1] + origHeight > Dispheight) {
@@ -88,8 +91,10 @@ public class Play extends Activity {
         vid.setVideoURI(uri);
         ViewGroup.LayoutParams params = vid.getLayoutParams();
         int[] dimens = this.dimens();
-        params.height = dimens[1];
-        params.width = dimens[0];
+        DisplayMetrics met = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(met);
+        params.height = dimens[1] * met.densityDpi / 160;
+        params.width = dimens[0] * met.densityDpi / 160;
         vid.setLayoutParams(params);
         vid.setMediaController(new MediaController(this));
         if (count == 0) {
