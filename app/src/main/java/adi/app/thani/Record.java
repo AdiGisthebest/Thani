@@ -18,7 +18,6 @@ import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.StreamConfigurationMap;
-import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.media.SoundPool;
 import android.os.Bundle;
@@ -39,8 +38,9 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
+import android.widget.SeekBar;
+import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
@@ -68,7 +68,11 @@ public class Record extends Activity implements Camera2Listener {
     ImageView image;
     ImageView image2;
     ImageView image3;
-    EditText speed;
+    //EditText speed;
+    TextView speedText;
+    Switch audio;
+    boolean audioBool;
+    SeekBar speed2;
     ToggleButton toggle;
     int count;
     public static final String TAG = "Camera2Fragment";
@@ -84,7 +88,6 @@ public class Record extends Activity implements Camera2Listener {
     HashMap<Integer, Integer> adi;
     HashMap<Integer, Integer> khanda;
     HashMap<Integer, Integer> rupa;
-    MediaPlayer player;
     SoundPool pool;
     View view;
     private AutoFitTextureView mCameraLayout;
@@ -473,15 +476,28 @@ public class Record extends Activity implements Camera2Listener {
         pool = builder.build();
         text = findViewById(R.id.textView3);
         soundid = pool.load(this, R.raw.clap, 1);
-        count = getIntent().getIntExtra(Intent.EXTRA_INDEX,0);
+        count = getIntent().getIntExtra(Intent.EXTRA_INDEX, 0);
         image = findViewById(R.id.imageView);
         image2 = findViewById(R.id.imageView2);
         image3 = findViewById(R.id.imageView3);
-        speed = findViewById(R.id.editText);
-        speed.setText("80");
+        speed2 = findViewById(R.id.seekBar);
+        speedText = findViewById(R.id.textView4);
+        audio = findViewById(R.id.switch2);
+        //speed = findViewById(R.id.editText);
+        //speed.setText("80");
+        path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath() + File.separator;
         record = new MediaRecorder();
-        if (ContextCompat.checkSelfPermission(this,Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
-            if (ContextCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+        record.setAudioSource(MediaRecorder.AudioSource.MIC);
+        record.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+        record.setOutputFile(path + "Thani" + (count + 1) + ".mp4");
+        record.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+        try {
+            record.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
                     run();
                 } else {
@@ -495,6 +511,17 @@ public class Record extends Activity implements Camera2Listener {
         }
     }
     public void run() {
+        audio.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                audioBool = isChecked;
+                if (audioBool) {
+                    mCameraLayout.setVisibility(View.INVISIBLE);
+                } else {
+                    mCameraLayout.setVisibility(View.VISIBLE);
+                }
+            }
+        });
         mCameraLayout = findViewById(R.id.camera_preview);
         mRationaleMessage = getString(com.wesley.camera2.R.string.camera2_permission_message);
         startBackgroundThread();
@@ -503,149 +530,167 @@ public class Record extends Activity implements Camera2Listener {
         } else {
             mCameraLayout.setSurfaceTextureListener(mSurfaceTextureListener);
         }
-        path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath() + File.separator;
         count++;
         toggle = findViewById(R.id.toggleButton);
+        speed2.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                Integer prog = new Integer(progress);
+                speedText.setText(prog.toString());
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
         toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @SuppressLint("ResourceType")
             @Override
             public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
                 view = buttonView;
                 final Intent intent = getIntent();
+                //if ()
                 if (isChecked) {
                     toggle.setClickable(false);
-                    if (Integer.parseInt(speed.getText().toString()) >= 161) {
-                        Toast.makeText(Record.this, "Please enter a lower speed", Toast.LENGTH_SHORT).show();
-                        toggle.setChecked(false);
-                        speed.setVisibility(View.VISIBLE);
-                    } else {
+                    if (!audioBool) {
                         startRecordingVideo();
-                        text.setVisibility(View.INVISIBLE);
-                        speed.setVisibility(View.INVISIBLE);
-                        int speedNum;
-                        if (speed.getText().toString().toCharArray().length >= 5) {
-                            speedNum = 80;
-                        } else {
-                            speedNum = Integer.parseInt(speed.getText().toString());
-                        }
-                        returnval.putExtra(Intent.ACTION_PACKAGE_REMOVED, speedNum);
-                        if (intent.getStringExtra(Intent.EXTRA_TEXT).equals("Adi Talam")) {
-                            hi = new CountDownTimer(1000000000, 60000 / speedNum) {
-                                public void onTick(long millisUntilFinished) {
-                                    if (millisUntilFinished <= 999999800) {
-                                        toggle.setClickable(true);
-                                    }
-                                    image.setImageResource(adi.get(i));
-                                    image2.setImageResource(adi.get(i + 8));
-                                    pool.play(soundid, 1, 1, 1, 0, 1);
-                                    //player.start();
-                                    i++;
-                                    if (i >= 8) {
-                                        i = 0;
-                                    }
-                                    if (!visibleChecked) {
-                                        if (hi != null) {
-                                            hi.cancel();
-                                            hi = null;
-                                        }
-                                    }
-                                }
-
-                                public void onFinish() {
-                                    hi.cancel();
-                                    Log.d("hi", "hello");
-                                }
-                            };
-                        } else if (intent.getStringExtra(Intent.EXTRA_TEXT).equals("Misra Chap")) {
-                            hi = new CountDownTimer(1000000000, 60000 / (speedNum * 2)) {
-                                public void onTick(long millisUntilFinished) {
-                                    if (millisUntilFinished <= 999999900) {
-                                        toggle.setClickable(true);
-                                    }
-                                    if (i == 0 || i == 3 || i == 5) {
-                                        pool.play(soundid, 1, 1, 1, 0, 1);
-                                    }
-                                    image.setImageResource(mishra.get(i));
-                                    image2.setImageResource(mishra.get(i + 7));
-                                    i++;
-                                    if (i >= 7) {
-                                        i = 0;
-                                    }
-                                    if (!visibleChecked) {
-                                        if (hi != null) {
-                                            hi.cancel();
-                                            hi = null;
-                                        }
-                                    }
-                                }
-
-                                public void onFinish() {
-                                    hi.cancel();
-                                    Log.d("hi", "hello");
-                                }
-                            };
-                        } else if (intent.getStringExtra(Intent.EXTRA_TEXT).equals("Khanda Chap")) {
-                            hi = new CountDownTimer(1000000000, 60000 / (speedNum * 2)) {
-                                public void onTick(long millisUntilFinished) {
-                                    if (millisUntilFinished <= 999999900) {
-                                        toggle.setClickable(true);
-                                    }
-                                    if (i == 0 || i == 2) {
-                                        pool.play(soundid, 1, 1, 1, 0, 1);
-                                    }
-                                    image.setImageResource(khanda.get(i));
-                                    image2.setImageResource(khanda.get(i + 5));
-                                    i++;
-                                    if (i >= 5) {
-                                        i = 0;
-                                    }
-                                    if (!visibleChecked) {
-                                        if (hi != null) {
-                                            hi.cancel();
-                                            hi = null;
-                                        }
-                                    }
-                                }
-
-                                public void onFinish() {
-                                    hi.cancel();
-                                    Log.d("hi", "hello");
-                                }
-                            };
-                        } else if (intent.getStringExtra(Intent.EXTRA_TEXT).equals("Rupaka Talam")) {
-                            hi = new CountDownTimer(1000000000, 60000 / (speedNum * 2)) {
-                                public void onTick(long millisUntilFinished) {
-                                    if (millisUntilFinished <= 999999900) {
-                                        toggle.setClickable(true);
-                                    }
-                                    if (i == 0 || i == 2 || i == 4) {
-                                        pool.play(soundid, 1, 1, 1, 0, 1);
-                                    }
-                                    image.setImageResource(rupa.get(i));
-                                    image2.setImageResource(rupa.get(i + 6));
-                                    i++;
-                                    if (i >= 6) {
-                                        i = 0;
-                                    }
-                                    if (!visibleChecked) {
-                                        if (hi != null) {
-                                            hi.cancel();
-                                            hi = null;
-                                        }
-                                    }
-                                }
-
-                                public void onFinish() {
-                                    hi.cancel();
-                                    Log.d("hi", "hello");
-                                }
-                            };
-                        }
-                        hi.start();
+                    } else {
+                        returnval.putExtra("Audio", true);
+                        record.start();
                     }
+                    text.setVisibility(View.INVISIBLE);
+                    speed2.setVisibility(View.INVISIBLE);
+                    speedText.setVisibility(View.INVISIBLE);
+                    int speedNum;
+                    speedNum = Integer.parseInt(speedText.getText().toString());
+                    returnval.putExtra(Intent.ACTION_PACKAGE_REMOVED, speedNum);
+                    if (intent.getStringExtra(Intent.EXTRA_TEXT).equals("Adi Talam")) {
+                        hi = new CountDownTimer(1000000000, 60000 / speedNum) {
+                            public void onTick(long millisUntilFinished) {
+                                if (millisUntilFinished <= 999999800) {
+                                    toggle.setClickable(true);
+                                }
+                                image.setImageResource(adi.get(i));
+                                image2.setImageResource(adi.get(i + 8));
+                                pool.play(soundid, 1, 1, 1, 0, 1);
+                                //player.start();
+                                i++;
+                                if (i >= 8) {
+                                    i = 0;
+                                }
+                                if (!visibleChecked) {
+                                    if (hi != null) {
+                                        hi.cancel();
+                                        hi = null;
+                                    }
+                                }
+                            }
+
+                            public void onFinish() {
+                                hi.cancel();
+                                Log.d("hi", "hello");
+                            }
+                        };
+                    } else if (intent.getStringExtra(Intent.EXTRA_TEXT).equals("Misra Chap")) {
+                        hi = new CountDownTimer(1000000000, 60000 / (speedNum * 2)) {
+                            public void onTick(long millisUntilFinished) {
+                                if (millisUntilFinished <= 999999900) {
+                                    toggle.setClickable(true);
+                                }
+                                if (i == 0 || i == 3 || i == 5) {
+                                    pool.play(soundid, 1, 1, 1, 0, 1);
+                                }
+                                image.setImageResource(mishra.get(i));
+                                image2.setImageResource(mishra.get(i + 7));
+                                i++;
+                                if (i >= 7) {
+                                    i = 0;
+                                }
+                                if (!visibleChecked) {
+                                    if (hi != null) {
+                                        hi.cancel();
+                                        hi = null;
+                                    }
+                                }
+                            }
+
+                            public void onFinish() {
+                                hi.cancel();
+                                Log.d("hi", "hello");
+                            }
+                        };
+                    } else if (intent.getStringExtra(Intent.EXTRA_TEXT).equals("Khanda Chap")) {
+                        hi = new CountDownTimer(1000000000, 60000 / (speedNum * 2)) {
+                            public void onTick(long millisUntilFinished) {
+                                if (millisUntilFinished <= 999999900) {
+                                    toggle.setClickable(true);
+                                }
+                                if (i == 0 || i == 2) {
+                                    pool.play(soundid, 1, 1, 1, 0, 1);
+                                }
+                                image.setImageResource(khanda.get(i));
+                                image2.setImageResource(khanda.get(i + 5));
+                                i++;
+                                if (i >= 5) {
+                                    i = 0;
+                                }
+                                if (!visibleChecked) {
+                                    if (hi != null) {
+                                        hi.cancel();
+                                        hi = null;
+                                    }
+                                }
+                            }
+
+                            public void onFinish() {
+                                hi.cancel();
+                                Log.d("hi", "hello");
+                            }
+                        };
+                    } else if (intent.getStringExtra(Intent.EXTRA_TEXT).equals("Rupaka Talam")) {
+                        hi = new CountDownTimer(1000000000, 60000 / (speedNum * 2)) {
+                            public void onTick(long millisUntilFinished) {
+                                if (millisUntilFinished <= 999999900) {
+                                    toggle.setClickable(true);
+                                }
+                                if (i == 0 || i == 2 || i == 4) {
+                                    pool.play(soundid, 1, 1, 1, 0, 1);
+                                }
+                                image.setImageResource(rupa.get(i));
+                                image2.setImageResource(rupa.get(i + 6));
+                                i++;
+                                if (i >= 6) {
+                                    i = 0;
+                                }
+                                if (!visibleChecked) {
+                                    if (hi != null) {
+                                        hi.cancel();
+                                        hi = null;
+                                    }
+                                }
+                            }
+
+                            public void onFinish() {
+                                hi.cancel();
+                                Log.d("hi", "hello");
+                            }
+                        };
+                    }
+                    hi.start();
                 } else {
                     hi.cancel();
-                    stopRecordingVideo();
+                    if (!audioBool) {
+                        stopRecordingVideo();
+                    } else {
+                        record.stop();
+                        record.release();
+                    }
                     image.setImageResource(R.mipmap.hello);
                     image2.setImageResource(R.mipmap.hello);
                     image3.setImageResource(R.mipmap.hello);

@@ -59,22 +59,31 @@ public class MainActivity extends AppCompatActivity {
                         switch((String)item.getTitle()) {
                             case "Play Video":
                                 Intent play = new Intent(MainActivity.this,Play.class);
-                                play.putExtra(Intent.EXTRA_COMPONENT_NAME,suffix);
+                                play.putExtra(Intent.EXTRA_COMPONENT_NAME, suffix);
+                                play.putExtra("Audio", audio.get(suffix));
                                 startActivity(play);
                             break;
                             case "Delete":
                                 File thingToDel = new File(path);
                                 if (thingToDel.delete()) {
-                                    Toast.makeText(MainActivity.this, "Video Successfully Deleted", Toast.LENGTH_SHORT).show();
+                                    if (audio.get(suffix)) {
+                                        Toast.makeText(MainActivity.this, "Audio Successfully Deleted", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(MainActivity.this, "Video Successfully Deleted", Toast.LENGTH_SHORT).show();
+                                    }
                                 } else {
-                                    Toast.makeText(MainActivity.this, "Video Deletion Failed", Toast.LENGTH_SHORT).show();
+                                    if (audio.get(suffix)) {
+                                        Toast.makeText(MainActivity.this, "Audio Deletion Failed", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(MainActivity.this, "Video Deletion Failed", Toast.LENGTH_SHORT).show();
+                                    }
                                 }
                                 adapter.remove(suffix);
                                 adapter.notifyDataSetChanged();
                             break;
                             case "Share":
                                 File file = new File(path);
-                                Uri fileuri = FileProvider.getUriForFile(getApplicationContext(),BuildConfig.APPLICATION_ID + ".provider",file);
+                                Uri fileuri = FileProvider.getUriForFile(getApplicationContext(), BuildConfig.APPLICATION_ID + ".provider", file);
                                 Intent data = new Intent();
                                 List<ResolveInfo> resInfoList = MainActivity.this.getPackageManager().queryIntentActivities(data, PackageManager.MATCH_DEFAULT_ONLY);
                                 for (ResolveInfo resolveInfo : resInfoList) {
@@ -82,10 +91,14 @@ public class MainActivity extends AppCompatActivity {
                                     MainActivity.this.grantUriPermission(packageName, fileuri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
                                 }
                                 data.setAction(Intent.ACTION_SEND);
-                                data.putExtra(Intent.EXTRA_STREAM,fileuri);
-                                data.setType("video/mp4");
-                                startActivity(Intent.createChooser(data,null));
-                            break;
+                                data.putExtra(Intent.EXTRA_STREAM, fileuri);
+                                if (audio.get(suffix)) {
+                                    data.setType("audio/mp4");
+                                } else {
+                                    data.setType("video/mp4");
+                                }
+                                startActivity(Intent.createChooser(data, null));
+                                break;
                             case "Rename":
                                 rename(suffix);
                         }
@@ -135,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
                 i = data.getIntExtra(Intent.EXTRA_TEXT, 0);
                 String name = data.getStringExtra(Intent.EXTRA_STREAM);
                 boolean override = data.getBooleanExtra(Intent.EXTRA_REFERRER_NAME, false);
+                audio.put(name, data.getBooleanExtra("Audio", false));
                 if (override) {
                     adapter.remove(name);
                 }

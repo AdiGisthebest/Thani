@@ -14,6 +14,7 @@ import android.widget.VideoView;
 import androidx.annotation.Nullable;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 
 public class Play extends Activity {
@@ -52,33 +53,45 @@ public class Play extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.play);
         count = 0;
+
         final VideoView vid = findViewById(R.id.videoView2);
         String suffix = getIntent().getStringExtra(Intent.EXTRA_COMPONENT_NAME);
         final String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath() + File.separator + suffix + ".mp4";
         Uri uri = Uri.parse(path);
-        vid.setVideoURI(uri);
-        ViewGroup.LayoutParams params = vid.getLayoutParams();
-        int[] dimens = this.dimens();
-        DisplayMetrics met = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(met);
-        params.height = dimens[1] * met.densityDpi / 160;
-        params.width = dimens[0] * met.densityDpi / 160;
-        vid.setLayoutParams(params);
-        vid.setMediaController(new MediaController(this));
-        if (count == 0) {
-            vid.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+        if (getIntent().getBooleanExtra("Audio", false)) {
+            vid.setVideoURI(uri);
+            ViewGroup.LayoutParams params = vid.getLayoutParams();
+            int[] dimens = this.dimens();
+            DisplayMetrics met = new DisplayMetrics();
+            getWindowManager().getDefaultDisplay().getMetrics(met);
+            params.height = dimens[1] * met.densityDpi / 160;
+            params.width = dimens[0] * met.densityDpi / 160;
+            vid.setLayoutParams(params);
+            vid.setMediaController(new MediaController(this));
+            if (count == 0) {
+                vid.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                    @Override
+                    public void onPrepared(MediaPlayer mp) {
+                        vid.start();
+                    }
+                });
+            }
+            vid.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
-                public void onPrepared(MediaPlayer mp) {
-                    vid.start();
+                public void onCompletion(MediaPlayer mp) {
+                    finish();
                 }
             });
-        }
-        vid.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                finish();
+        } else {
+            MediaPlayer player = new MediaPlayer();
+            try {
+                player.setDataSource(path);
+                player.prepare();
+                player.start();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        });
+        }
     }
     protected void onStop() {
         super.onStop();
