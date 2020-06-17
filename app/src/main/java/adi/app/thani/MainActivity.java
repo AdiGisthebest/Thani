@@ -25,6 +25,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,19 +33,18 @@ public class MainActivity extends AppCompatActivity {
     int i = 0;
     ArrayAdapter adapter;
     LinkedList<String> recordList = new LinkedList<String>();
-    HashMap<String,Integer> bpm;
-    HashMap<String,String> talam;
     String path;
+    HashMap<String, Boolean> audio;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        recordList = Readfromfile.read(this);
+        recordList = Readfromfile.read(this).recorder;
         setContentView(R.layout.activity_main);
-        i = Readfromfile.readInt(this);
+        audio = Readfromfile.read(this).audio;
+        i = Readfromfile.read(this).i;
         Button fab = findViewById(R.id.floatingActionButton);
         ListView listView = findViewById(R.id.listView);
         adapter = new ArrayAdapter(this,android.R.layout.simple_list_item_1,recordList);
-        listView.setBackgroundResource(R.drawable.roundedlistview);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
                                 startActivity(Intent.createChooser(data,null));
                             break;
                             case "Rename":
-                                rename(suffix, view);
+                                rename(suffix);
                         }
                         return false;
                     }
@@ -120,7 +120,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        Datatofile.fileWrite(recordList, this, i);
+        try {
+            Datatofile.fileWrite(recordList, this, audio, i);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -140,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void rename(final String suffix, final View view) {
+    public void rename(final String suffix) {
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
         View popview = inflater.inflate(R.layout.rename, null);
         final PopupWindow pop = new PopupWindow(popview, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -148,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
         final EditText name = popview.findViewById(R.id.editText3);
         name.setText(suffix);
         pop.setFocusable(true);
-        pop.showAtLocation(view, Gravity.CENTER, 50, 50);
+        pop.showAtLocation(getWindow().getDecorView().getRootView(), Gravity.CENTER, 0, 0);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

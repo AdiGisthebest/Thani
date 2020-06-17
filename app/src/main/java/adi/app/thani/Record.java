@@ -654,7 +654,7 @@ public class Record extends Activity implements Camera2Listener {
                     image2.setVisibility(View.INVISIBLE);
                     image3.setVisibility(View.INVISIBLE);
                     mCameraLayout.setVisibility(View.INVISIBLE);
-                    rename(buttonView, intent);
+                    rename(intent);
                 }
 
             }
@@ -665,7 +665,7 @@ public class Record extends Activity implements Camera2Listener {
         View popview = inflater.inflate(R.layout.name, null);
         final PopupWindow popup = new PopupWindow(popview, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         popup.setOutsideTouchable(false);
-        popup.showAtLocation(view, Gravity.CENTER, 0, 0);
+        popup.showAtLocation(getWindow().getDecorView().getRootView(), Gravity.CENTER, 0, 0);
         Button yes = popview.findViewById(R.id.button3);
         Button no = popview.findViewById(R.id.button2);
         yes.setOnClickListener(new View.OnClickListener() {
@@ -684,18 +684,18 @@ public class Record extends Activity implements Camera2Listener {
             @Override
             public void onClick(View v) {
                 popup.dismiss();
-                rename(v, getIntent());
+                rename(getIntent());
             }
         });
     }
 
-    public void rename(View v, Intent intent) {
+    public void rename(Intent intent) {
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
         View popview = inflater.inflate(R.layout.popup, null);
         final PopupWindow pop = new PopupWindow(popview, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         pop.setOutsideTouchable(false);
         pop.setFocusable(true);
-        pop.showAtLocation(v, Gravity.CENTER, 0, 0);
+        pop.showAtLocation(getWindow().getDecorView().getRootView(), Gravity.CENTER, 0, 0);
         setResult(RESULT_OK, returnval);
         returnval.putExtra(Intent.EXTRA_TEXT, count);
         returnval.putExtra(Intent.EXTRA_PACKAGE_NAME, intent.getStringExtra(Intent.EXTRA_TEXT));

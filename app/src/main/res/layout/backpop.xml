@@ -5,7 +5,7 @@
     android:layout_height="match_parent">
 
     <androidx.cardview.widget.CardView
-        android:layout_width="303dp"
+        android:layout_width="300dp"
         android:layout_height="160dp"
         app:cardBackgroundColor="#ECECEC"
         app:cardCornerRadius="20dp"
@@ -27,22 +27,23 @@
 
         <Button
             android:id="@+id/no"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/roundbutton"
-            android:backgroundTint="#BCBCBC"
+            android:layout_width="157dp"
+            android:layout_height="66dp"
+
+            android:backgroundTint="#E1E1E1"
             android:text="no"
-            android:translationX="15dp"
-            android:translationY="100dp" />
+            android:textColor="#2196F3"
+            android:translationX="-5dp"
+            android:translationY="105dp" />
 
         <Button
             android:id="@+id/yes"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/roundbutton"
-            android:backgroundTint="#BCBCBC"
+            android:layout_width="160dp"
+            android:layout_height="63dp"
+            android:backgroundTint="#E1E1E1"
             android:text="yes"
-            android:translationX="200dp"
-            android:translationY="100dp" />
+            android:textColor="#2196F3"
+            android:translationX="145dp"
+            android:translationY="105dp" />
     </androidx.cardview.widget.CardView>
 </androidx.constraintlayout.widget.ConstraintLayout>
