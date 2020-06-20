@@ -6,23 +6,26 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.util.DisplayMetrics;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.MediaController;
+import android.widget.SeekBar;
 import android.widget.VideoView;
 
 import androidx.annotation.Nullable;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 
 public class Play extends Activity {
-    MediaPlayer player;
     int count;
-    String talam;
-    HashMap<Integer, Integer> adi;
-    HashMap<Integer, Integer> mishra;
+    MediaPlayer player;
+    boolean paused = false;
+    Runnable run;
+    Handler handler = new Handler();
 
     public int[] dimens() {
         DisplayMetrics metrics = new DisplayMetrics();
@@ -53,12 +56,69 @@ public class Play extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.play);
         count = 0;
-
+        final SeekBar prog = findViewById(R.id.seekBar2);
+        final Button play = findViewById(R.id.button4);
         final VideoView vid = findViewById(R.id.videoView2);
+        player = new MediaPlayer();
         String suffix = getIntent().getStringExtra(Intent.EXTRA_COMPONENT_NAME);
-        final String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath() + File.separator + suffix + ".mp4";
-        Uri uri = Uri.parse(path);
         if (getIntent().getBooleanExtra("Audio", false)) {
+            final String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath() + File.separator + suffix + ".mp3";
+            vid.setVisibility(View.INVISIBLE);
+            try {
+                player.setDataSource(path);
+                player.prepare();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            prog.setMax(player.getDuration() / 1000);
+            player.start();
+            handler = new Handler();
+            Play.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (player != null) {
+                        int mCurrentPosition = (player.getCurrentPosition() / 1000) + 1;
+                        System.out.println(mCurrentPosition);
+                        prog.setProgress(mCurrentPosition);
+                    }
+                    handler.postDelayed(this, 1000);
+                    run = this;
+                }
+            });
+            prog.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+                }
+
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    if (player != null && fromUser) {
+                        player.seekTo(progress * 1000);
+                    }
+                }
+            });
+            play.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    paused = !paused;
+                    if (!paused) {
+                        play.setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_media_pause, 0, 0, 0);
+                        handler.postDelayed(run, 1000);
+                        player.start();
+                    } else {
+                        play.setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_media_play, 0, 0, 0);
+                        handler.removeCallbacks(run);
+                        player.pause();
+                    }
+                }
+            });
+        } else {
+            final String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath() + File.separator + suffix + ".mp4";
+            Uri uri = Uri.parse(path);
             vid.setVideoURI(uri);
             ViewGroup.LayoutParams params = vid.getLayoutParams();
             int[] dimens = this.dimens();
@@ -82,17 +142,21 @@ public class Play extends Activity {
                     finish();
                 }
             });
-        } else {
-            MediaPlayer player = new MediaPlayer();
-            try {
-                player.setDataSource(path);
-                player.prepare();
-                player.start();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
+
+
     }
+
+    @Override
+    public void onBackPressed() {
+        if (player != null) {
+            player.stop();
+            handler.removeCallbacks(run);
+            player.release();
+        }
+        super.onBackPressed();
+    }
+
     protected void onStop() {
         super.onStop();
     }

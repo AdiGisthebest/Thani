@@ -55,14 +55,19 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
                         final String suffix = parent.getItemAtPosition(position).toString();
-                        path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath() + File.separator + suffix + ".mp4";
-                        switch((String)item.getTitle()) {
-                            case "Play Video":
-                                Intent play = new Intent(MainActivity.this,Play.class);
+                        if (audio.get(suffix)) {
+                            path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath() + File.separator + suffix + ".mp3";
+                        } else {
+                            path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath() + File.separator + suffix + ".mp4";
+                        }
+
+                        switch ((String) item.getTitle()) {
+                            case "Play":
+                                Intent play = new Intent(MainActivity.this, Play.class);
                                 play.putExtra(Intent.EXTRA_COMPONENT_NAME, suffix);
                                 play.putExtra("Audio", audio.get(suffix));
                                 startActivity(play);
-                            break;
+                                break;
                             case "Delete":
                                 File thingToDel = new File(path);
                                 if (thingToDel.delete()) {
@@ -78,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
                                         Toast.makeText(MainActivity.this, "Video Deletion Failed", Toast.LENGTH_SHORT).show();
                                     }
                                 }
+                                audio.remove(suffix);
                                 adapter.remove(suffix);
                                 adapter.notifyDataSetChanged();
                             break;
@@ -93,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
                                 data.setAction(Intent.ACTION_SEND);
                                 data.putExtra(Intent.EXTRA_STREAM, fileuri);
                                 if (audio.get(suffix)) {
-                                    data.setType("audio/mp4");
+                                    data.setType("audio/mpeg3");
                                 } else {
                                     data.setType("video/mp4");
                                 }
@@ -166,6 +172,8 @@ public class MainActivity extends AppCompatActivity {
         final EditText name = popview.findViewById(R.id.editText3);
         name.setText(suffix);
         pop.setFocusable(true);
+        final boolean audioVal = audio.get(suffix);
+        audio.remove(suffix);
         pop.showAtLocation(getWindow().getDecorView().getRootView(), Gravity.CENTER, 0, 0);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -177,6 +185,7 @@ public class MainActivity extends AppCompatActivity {
                     File file1 = new File(path);
                     File file2 = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath() + File.separator + name.getText().toString() + ".mp4");
                     file1.renameTo(file2);
+                    audio.put(name.getText().toString(), audioVal);
                     adapter.remove(suffix);
                     adapter.add(name.getText().toString());
                 }

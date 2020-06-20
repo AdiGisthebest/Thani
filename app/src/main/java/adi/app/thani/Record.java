@@ -483,19 +483,10 @@ public class Record extends Activity implements Camera2Listener {
         speed2 = findViewById(R.id.seekBar);
         speedText = findViewById(R.id.textView4);
         audio = findViewById(R.id.switch2);
+        record = new MediaRecorder();
         //speed = findViewById(R.id.editText);
         //speed.setText("80");
         path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath() + File.separator;
-        record = new MediaRecorder();
-        record.setAudioSource(MediaRecorder.AudioSource.MIC);
-        record.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-        record.setOutputFile(path + "Thani" + (count + 1) + ".mp4");
-        record.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-        try {
-            record.prepare();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
@@ -511,6 +502,15 @@ public class Record extends Activity implements Camera2Listener {
         }
     }
     public void run() {
+        record.setAudioSource(MediaRecorder.AudioSource.MIC);
+        record.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+        record.setOutputFile(path + "Thani" + (count + 1) + ".mp3");
+        record.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
+        try {
+            record.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         audio.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -564,6 +564,7 @@ public class Record extends Activity implements Camera2Listener {
                         returnval.putExtra("Audio", true);
                         record.start();
                     }
+                    audio.setVisibility(View.INVISIBLE);
                     text.setVisibility(View.INVISIBLE);
                     speed2.setVisibility(View.INVISIBLE);
                     speedText.setVisibility(View.INVISIBLE);
@@ -717,12 +718,21 @@ public class Record extends Activity implements Camera2Listener {
             @Override
             public void onClick(View v) {
                 popup.dismiss();
-                File file1 = new File(path + "Thani" + (count - 1) + ".mp4");
-                File file = new File(path + name + ".mp4");
-                file1.renameTo(file);
-                returnval.putExtra(Intent.EXTRA_REFERRER_NAME, true);
-                returnval.putExtra(Intent.EXTRA_STREAM, name);
-                finish();
+                if (audioBool) {
+                    File file1 = new File(path + "Thani" + (count - 1) + ".mp2");
+                    File file = new File(path + name + ".mp2");
+                    file1.renameTo(file);
+                    returnval.putExtra(Intent.EXTRA_REFERRER_NAME, true);
+                    returnval.putExtra(Intent.EXTRA_STREAM, name);
+                    finish();
+                } else {
+                    File file1 = new File(path + "Thani" + (count - 1) + ".mp4");
+                    File file = new File(path + name + ".mp4");
+                    file1.renameTo(file);
+                    returnval.putExtra(Intent.EXTRA_REFERRER_NAME, true);
+                    returnval.putExtra(Intent.EXTRA_STREAM, name);
+                    finish();
+                }
             }
         });
         no.setOnClickListener(new View.OnClickListener() {
@@ -755,10 +765,17 @@ public class Record extends Activity implements Camera2Listener {
             public void onClick(View v) {
                 buttonClick = true;
                 pop.dismiss();
-                File file1 = new File(path + "Thani" + count + ".mp4");
-                file1.delete();
-                setResult(RESULT_CANCELED, returnval);
-                finish();
+                if (!audioBool) {
+                    File file1 = new File(path + "Thani" + count + ".mp4");
+                    file1.delete();
+                    setResult(RESULT_CANCELED, returnval);
+                    finish();
+                } else {
+                    File file1 = new File(path + "Thani" + count + ".mp3");
+                    file1.delete();
+                    setResult(RESULT_CANCELED, returnval);
+                    finish();
+                }
             }
         });
         save.setOnClickListener(new View.OnClickListener() {
@@ -769,11 +786,19 @@ public class Record extends Activity implements Camera2Listener {
                 if (Datatofile.contains(getIntent().getStringArrayExtra(Intent.EXTRA_REFERRER), name.getText().toString())) {
                     Record.this.override(v, name.getText().toString());
                 } else {
-                    File file1 = new File(path + "Thani" + count + ".mp4");
-                    File file = new File(path + name.getText().toString() + ".mp4");
-                    file1.renameTo(file);
-                    returnval.putExtra(Intent.EXTRA_STREAM, name.getText().toString());
-                    finish();
+                    if (!audioBool) {
+                        File file1 = new File(path + "Thani" + count + ".mp4");
+                        File file = new File(path + name.getText().toString() + ".mp4");
+                        file1.renameTo(file);
+                        returnval.putExtra(Intent.EXTRA_STREAM, name.getText().toString());
+                        finish();
+                    } else {
+                        File file1 = new File(path + "Thani" + count + ".mp3");
+                        File file = new File(path + name.getText().toString() + ".mp3");
+                        file1.renameTo(file);
+                        returnval.putExtra(Intent.EXTRA_STREAM, name.getText().toString());
+                        finish();
+                    }
                 }
             }
         });

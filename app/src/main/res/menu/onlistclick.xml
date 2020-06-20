@@ -5,7 +5,7 @@
         android:title="Share" />
     <item
         android:id="@+id/play"
-        android:title="Play Video" />
+        android:title="Play" />
     <item android:title="Delete"
         android:id="@+id/del"/>
     <item android:title="Rename" />
