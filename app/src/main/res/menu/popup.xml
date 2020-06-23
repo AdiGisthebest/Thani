@@ -3,11 +3,16 @@
     <item
         android:id="@+id/khanda"
         android:title="Khanda Chap" />
-    <item android:title="Adi Talam"
-        android:id="@+id/adi"/>
-    <item android:title="Misra Chap"
-        android:id="@+id/misra"/>
+    <item
+        android:title="Adi Talam"
+        android:id="@+id/adi" />
+    <item
+        android:id="@+id/misra"
+        android:title="Misra Chap" />
     <item
         android:id="@+id/Rupakam"
         android:title="Rupaka Talam" />
+    <item
+        android:id="@+id/All"
+        android:title="All Talams" />
 </menu>

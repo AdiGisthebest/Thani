@@ -84,12 +84,10 @@ public class Record extends Activity implements Camera2Listener {
     boolean buttonClick;
     Intent returnval;
     ConstraintLayout cl;
-    HashMap<Integer, Integer> mishra;
-    HashMap<Integer, Integer> adi;
-    HashMap<Integer, Integer> khanda;
-    HashMap<Integer, Integer> rupa;
+    HashMap<Integer, Integer> map;
     SoundPool pool;
     View view;
+    int length;
     private AutoFitTextureView mCameraLayout;
     private CameraDevice mCameraDevice;
     private CameraCaptureSession mPreviewSession;
@@ -415,62 +413,8 @@ public class Record extends Activity implements Camera2Listener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.recorder);
         returnval = new Intent();
-        mishra = new HashMap<Integer, Integer>();
-        mishra.put(0, R.mipmap.realhand_foreground);
-        mishra.put(1, R.mipmap.hello);
-        mishra.put(2, R.mipmap.hello);
-        mishra.put(3, R.mipmap.realhand_foreground);
-        mishra.put(4, R.mipmap.hello);
-        mishra.put(5, R.mipmap.realhand_foreground);
-        mishra.put(6, R.mipmap.hello);
-        mishra.put(7, R.mipmap.seven_foreground);
-        mishra.put(8, R.mipmap.six_foreground);
-        mishra.put(9, R.mipmap.five_foreground);
-        mishra.put(10, R.mipmap.four_foreground);
-        mishra.put(11, R.mipmap.three_foreground);
-        mishra.put(12, R.mipmap.two_foreground);
-        mishra.put(13, R.mipmap.one_foreground);
-        adi = new HashMap<Integer, Integer>();
-        adi.put(0, R.mipmap.realhand_foreground);
-        adi.put(1, R.mipmap.realpinky_foreground);
-        adi.put(2, R.mipmap.realring_foreground);
-        adi.put(3, R.mipmap.realmiddle_foreground);
-        adi.put(4, R.mipmap.realhand_foreground);
-        adi.put(5, R.mipmap.realturn_foreground);
-        adi.put(6, R.mipmap.realhand_foreground);
-        adi.put(7, R.mipmap.realturn_foreground);
-        adi.put(8, R.mipmap.eight_foreground);
-        adi.put(9, R.mipmap.seven_foreground);
-        adi.put(10, R.mipmap.six_foreground);
-        adi.put(11, R.mipmap.five_foreground);
-        adi.put(12, R.mipmap.four_foreground);
-        adi.put(13, R.mipmap.three_foreground);
-        adi.put(14, R.mipmap.two_foreground);
-        adi.put(15, R.mipmap.one_foreground);
-        khanda = new HashMap<Integer, Integer>();
-        khanda.put(0, R.mipmap.realhand_foreground);
-        khanda.put(1, R.mipmap.hello);
-        khanda.put(2, R.mipmap.realhand_foreground);
-        khanda.put(3, R.mipmap.hello);
-        khanda.put(4, R.mipmap.hello);
-        khanda.put(5, R.mipmap.five_foreground);
-        khanda.put(6, R.mipmap.four_foreground);
-        khanda.put(7, R.mipmap.three_foreground);
-        khanda.put(8, R.mipmap.two_foreground);
-        khanda.put(9, R.mipmap.one_foreground);
-        rupa = new HashMap<Integer, Integer>();
-        rupa.put(0, R.mipmap.realhand_foreground);
-        rupa.put(1, R.mipmap.hello);
-        rupa.put(2, R.mipmap.realhand_foreground);
-        rupa.put(3, R.mipmap.hello);
-        rupa.put(4, R.mipmap.realturn_foreground);
-        rupa.put(5, R.mipmap.hello);
-        rupa.put(6, R.mipmap.six_foreground);
-        rupa.put(7, R.mipmap.five_foreground);
-        rupa.put(8, R.mipmap.four_foreground);
-        rupa.put(9, R.mipmap.three_foreground);
-        rupa.put(10, R.mipmap.two_foreground);
-        rupa.put(11, R.mipmap.one_foreground);
+        map = (HashMap<Integer, Integer>) getIntent().getSerializableExtra("TalamMap");
+        length = getIntent().getIntExtra("Length", 0);
         cl = findViewById(R.id.cl);
         SoundPool.Builder builder = new SoundPool.Builder();
         pool = builder.build();
@@ -570,103 +514,47 @@ public class Record extends Activity implements Camera2Listener {
                     speedText.setVisibility(View.INVISIBLE);
                     int speedNum;
                     speedNum = Integer.parseInt(speedText.getText().toString());
-                    returnval.putExtra(Intent.ACTION_PACKAGE_REMOVED, speedNum);
-                    if (intent.getStringExtra(Intent.EXTRA_TEXT).equals("Adi Talam")) {
+                    if (getIntent().getBooleanExtra("Chapu", false)) {
+                        final HashMap<Integer, Boolean> beats = (HashMap<Integer, Boolean>) getIntent().getSerializableExtra("Beats");
+                        hi = new CountDownTimer(1000000000, 60000 / (speedNum * 2)) {
+                            public void onTick(long millisUntilFinished) {
+                                if (millisUntilFinished <= 999999800) {
+                                    toggle.setClickable(true);
+                                }
+                                image.setImageResource(map.get(i));
+                                image2.setImageResource(map.get(i + length));
+                                if (beats.get(i)) {
+                                    pool.play(soundid, 1, 1, 1, 0, 1);
+                                }
+                                i++;
+                                if (i >= length) {
+                                    i = 0;
+                                }
+                                if (!visibleChecked) {
+                                    if (hi != null) {
+                                        hi.cancel();
+                                        hi = null;
+                                    }
+                                }
+                            }
+
+                            public void onFinish() {
+                                hi.cancel();
+                                Log.d("hi", "hello");
+                            }
+                        };
+                    } else {
                         hi = new CountDownTimer(1000000000, 60000 / speedNum) {
                             public void onTick(long millisUntilFinished) {
                                 if (millisUntilFinished <= 999999800) {
                                     toggle.setClickable(true);
                                 }
-                                image.setImageResource(adi.get(i));
-                                image2.setImageResource(adi.get(i + 8));
+                                image.setImageResource(map.get(i));
+                                image2.setImageResource(map.get(i + length));
                                 pool.play(soundid, 1, 1, 1, 0, 1);
                                 //player.start();
                                 i++;
-                                if (i >= 8) {
-                                    i = 0;
-                                }
-                                if (!visibleChecked) {
-                                    if (hi != null) {
-                                        hi.cancel();
-                                        hi = null;
-                                    }
-                                }
-                            }
-
-                            public void onFinish() {
-                                hi.cancel();
-                                Log.d("hi", "hello");
-                            }
-                        };
-                    } else if (intent.getStringExtra(Intent.EXTRA_TEXT).equals("Misra Chap")) {
-                        hi = new CountDownTimer(1000000000, 60000 / (speedNum * 2)) {
-                            public void onTick(long millisUntilFinished) {
-                                if (millisUntilFinished <= 999999900) {
-                                    toggle.setClickable(true);
-                                }
-                                if (i == 0 || i == 3 || i == 5) {
-                                    pool.play(soundid, 1, 1, 1, 0, 1);
-                                }
-                                image.setImageResource(mishra.get(i));
-                                image2.setImageResource(mishra.get(i + 7));
-                                i++;
-                                if (i >= 7) {
-                                    i = 0;
-                                }
-                                if (!visibleChecked) {
-                                    if (hi != null) {
-                                        hi.cancel();
-                                        hi = null;
-                                    }
-                                }
-                            }
-
-                            public void onFinish() {
-                                hi.cancel();
-                                Log.d("hi", "hello");
-                            }
-                        };
-                    } else if (intent.getStringExtra(Intent.EXTRA_TEXT).equals("Khanda Chap")) {
-                        hi = new CountDownTimer(1000000000, 60000 / (speedNum * 2)) {
-                            public void onTick(long millisUntilFinished) {
-                                if (millisUntilFinished <= 999999900) {
-                                    toggle.setClickable(true);
-                                }
-                                if (i == 0 || i == 2) {
-                                    pool.play(soundid, 1, 1, 1, 0, 1);
-                                }
-                                image.setImageResource(khanda.get(i));
-                                image2.setImageResource(khanda.get(i + 5));
-                                i++;
-                                if (i >= 5) {
-                                    i = 0;
-                                }
-                                if (!visibleChecked) {
-                                    if (hi != null) {
-                                        hi.cancel();
-                                        hi = null;
-                                    }
-                                }
-                            }
-
-                            public void onFinish() {
-                                hi.cancel();
-                                Log.d("hi", "hello");
-                            }
-                        };
-                    } else if (intent.getStringExtra(Intent.EXTRA_TEXT).equals("Rupaka Talam")) {
-                        hi = new CountDownTimer(1000000000, 60000 / (speedNum * 2)) {
-                            public void onTick(long millisUntilFinished) {
-                                if (millisUntilFinished <= 999999900) {
-                                    toggle.setClickable(true);
-                                }
-                                if (i == 0 || i == 2 || i == 4) {
-                                    pool.play(soundid, 1, 1, 1, 0, 1);
-                                }
-                                image.setImageResource(rupa.get(i));
-                                image2.setImageResource(rupa.get(i + 6));
-                                i++;
-                                if (i >= 6) {
+                                if (i >= length) {
                                     i = 0;
                                 }
                                 if (!visibleChecked) {
@@ -683,6 +571,7 @@ public class Record extends Activity implements Camera2Listener {
                             }
                         };
                     }
+
                     hi.start();
                 } else {
                     hi.cancel();

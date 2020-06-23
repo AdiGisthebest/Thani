@@ -20,7 +20,6 @@ import android.widget.PopupMenu;
 import android.widget.PopupWindow;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 
@@ -117,23 +116,52 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                PopupMenu menu = new PopupMenu(MainActivity.this,v);
-                menu.getMenuInflater().inflate(R.menu.popup,menu.getMenu());
+                PopupMenu menu = new PopupMenu(MainActivity.this, v);
+                menu.getMenuInflater().inflate(R.menu.popup, menu.getMenu());
                 menu.show();
                 menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        Intent hi = new Intent(MainActivity.this,Record.class);
-                        hi.putExtra(Intent.EXTRA_TEXT,item.getTitle());
-                        String[] hi17 = new String[0];
-                        hi.putExtra(Intent.EXTRA_REFERRER, recordList.toArray(hi17));
-                        hi.putExtra(Intent.EXTRA_INDEX,i);
-                        startActivityForResult(hi,0);
+                        Datatofile talam = new Datatofile();
+                        if (item.getTitle().equals("Adi Talam")) {
+                            MainActivity.this.callActivity(talam.makeTalamMap("Triputa Talam", 4), talam.getLength());
+                        } else if (item.getTitle().equals("Misra Chap")) {
+                            MainActivity.this.callChapuActivity(talam.makeChapuMap(7), talam.getLength(), talam.getChapuBeats());
+                        } else if (item.getTitle().equals("Rupaka Talam")) {
+                            MainActivity.this.callActivity(talam.makeTalamMap("Rupaka Talam", 4), talam.getLength());
+                        } else if (item.getTitle().equals("Khanda Chap")) {
+                            MainActivity.this.callChapuActivity(talam.makeChapuMap(5), talam.getLength(), talam.getChapuBeats());
+                        } else {
+                            Intent intent = new Intent(MainActivity.this, talam.class);
+                            startActivityForResult(intent, 1);
+                        }
                         return false;
                     }
                 });
             }
         });
+    }
+
+    public void callActivity(HashMap<Integer, Integer> talamMap, int length) {
+        Intent hi = new Intent(MainActivity.this, Record.class);
+        hi.putExtra("TalamMap", talamMap);
+        hi.putExtra("Length", length);
+        String[] hi17 = new String[0];
+        hi.putExtra(Intent.EXTRA_REFERRER, recordList.toArray(hi17));
+        hi.putExtra(Intent.EXTRA_INDEX, i);
+        startActivityForResult(hi, 0);
+    }
+
+    public void callChapuActivity(HashMap<Integer, Integer> talamMap, int length, HashMap<Integer, Boolean> beats) {
+        Intent hi = new Intent(MainActivity.this, Record.class);
+        hi.putExtra("TalamMap", talamMap);
+        hi.putExtra("Length", length);
+        hi.putExtra("Chapu", true);
+        hi.putExtra("Beats", beats);
+        String[] hi17 = new String[0];
+        hi.putExtra(Intent.EXTRA_REFERRER, recordList.toArray(hi17));
+        hi.putExtra(Intent.EXTRA_INDEX, i);
+        startActivityForResult(hi, 0);
     }
 
     @Override
@@ -147,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             if (requestCode == 0) {
@@ -160,6 +188,13 @@ public class MainActivity extends AppCompatActivity {
                 }
                 recordList.add(name);
                 adapter.notifyDataSetChanged();
+            } else if (requestCode == 1) {
+                Datatofile talam = new Datatofile();
+                if (data.getBooleanExtra("Chapu", false)) {
+                    this.callChapuActivity(talam.makeChapuMap(data.getIntExtra("Length", 0)), talam.getLength(), talam.getChapuBeats());
+                } else {
+                    this.callActivity(talam.makeTalamMap(data.getStringExtra("Family"), data.getIntExtra("Jati", 4)), talam.getLength());
+                }
             }
         }
     }
